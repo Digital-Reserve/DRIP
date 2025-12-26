@@ -1,0 +1,81 @@
+# Patterns that are specific to a text editor, IDE, operating system, or user
+# environment are not added here. They should be added to your local gitignore
+# file instead:
+# https://docs.github.com/en/get-started/git-basics/ignoring-files#configuring-ignored-files-for-all-repositories-on-your-computer
+
+# Build subdirectories.
+/*build*
+!/build-aux
+!/build_msvc
+
+*.pyc
+
+# Only ignore unexpected patches
+*.patch
+!ci/test/*.patch
+!contrib/guix/patches/*.patch
+!depends/patches/**/*.patch
+
+/CMakeUserPresets.json
+
+# Previous releases
+/releases
+
+# cargo default target dir
+target/
+
+/guix-build-*
+
+/ci/scratch/
+
+# Local build scripts and notes (not for distribution)
+/ALT_BUILD.md
+/build_release.ps1
+/check_binary.py
+
+# Build process documentation (local guides)
+/BUILD_COMPLETE.md
+/BUILD_DEPENDENCIES.md
+/BUILD_GENESIS_MINER.md
+/DRIP_GENESIS_MINING_GUIDE.md
+/MINE_FIRST_BLOCK_COMMANDS.md
+/MINE_GENESIS.md
+/CLEANUP_AND_PRIVACY_GUIDE.md
+/PRIVACY_QUICK_START.md
+/ANONYMITY_STATUS.md
+/ANONYMIZATION_COMPLETE.md
+/ANONYMIZATION_REPORT.md
+/ALL_ISSUES_FIXED.md
+
+# Rebranding documentation
+/DRIP_REBRAND_COMPLETE.md
+/REBRANDING_REPORT.md
+/FINAL_COMPLETE.md
+/FIXES_COMPLETE.md
+
+# Logo/Icon guides
+/LOGO_INTEGRATED.md
+/LOGO_INTEGRATION.md
+/ICON_FIXED.md
+/ICON_CACHE_FIX.md
+/ICON_QUICK_GUIDE.md
+/UPDATE_LOGO_INSTRUCTIONS.md
+
+# Build/Setup scripts (local development)
+/privacy_cleanup.ps1
+/anonymize_binary.py
+/verify_anonymization.py
+/rebrand_to_raw.py
+/convert_logo.py
+/build_from_dev_prompt.bat
+/build_genesis_miner.bat
+/build_genesis_miner.sh
+
+# Quick reference (local notes)
+/QUICK_REFERENCE.md
+/PRODUCTION_CHECKLIST.md
+
+# Temporary/generated files
+/scan_result.txt
+/__pycache__/
+/ANONYMOUS_RELEASE/

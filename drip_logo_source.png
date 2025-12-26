@@ -1,0 +1,13 @@
+Note: The DRIP logo image (glowing "D" with circuit board design in blue/purple/orange gradient) was provided by the user. 
+
+To integrate the logo:
+1. The user has provided the logo image in the conversation
+2. Save it as drip_logo_source.png manually from the conversation
+3. Then run: python convert_logo.py drip_logo_source.png
+4. Or manually convert and place in the icon locations
+
+The logo should be converted to these formats:
+- bitcoin.ico (Windows icon)
+- bitcoin.png (Main application icon)
+- bitcoin16.png, bitcoin32.png, bitcoin64.png, bitcoin128.png, bitcoin256.png
+
