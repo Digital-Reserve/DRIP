@@ -16,14 +16,29 @@ Write-Host ""
 
 # Paths
 $DripRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if (-not (Test-Path "$DripRoot\build\bin\dripd.exe")) {
-    $DripRoot = "C:\drip"
+
+# Find DRIP binaries (check both Release and Debug paths from MSVC build)
+$BinDir = $null
+if (Test-Path "$DripRoot\build\bin\Release\dripd.exe") {
+    $BinDir = "$DripRoot\build\bin\Release"
+} elseif (Test-Path "$DripRoot\build\bin\Debug\dripd.exe") {
+    $BinDir = "$DripRoot\build\bin\Debug"
+} elseif (Test-Path "$DripRoot\build\bin\dripd.exe") {
+    $BinDir = "$DripRoot\build\bin"
+} elseif (Test-Path "C:\drip\DRIP\build\bin\Release\dripd.exe") {
+    $DripRoot = "C:\drip\DRIP"
+    $BinDir = "$DripRoot\build\bin\Release"
+} else {
+    $DripRoot = "C:\drip\DRIP"
+    $BinDir = "$DripRoot\build\bin\Release"
 }
+
 $TorDir = "$DripRoot\tor"
 $TorDataDir = "$TorDir\data"
 $DripDataDir = "$env:LOCALAPPDATA\DRIP"
 
 Write-Host "DRIP Root: $DripRoot" -ForegroundColor Gray
+Write-Host "DRIP Binaries: $BinDir" -ForegroundColor Gray
 Write-Host "Tor Directory: $TorDir" -ForegroundColor Gray
 Write-Host "DRIP Data Directory: $DripDataDir" -ForegroundColor Gray
 Write-Host ""
@@ -155,10 +170,11 @@ if (Test-Path "$DripDataDir\bitcoin.conf") {
     $AllGood = $false
 }
 
-if (Test-Path "$DripRoot\build\bin\dripd.exe") {
-    Write-Host "  [OK] DRIP daemon found" -ForegroundColor Green
+if (Test-Path "$BinDir\dripd.exe") {
+    Write-Host "  [OK] DRIP daemon found at $BinDir" -ForegroundColor Green
 } else {
     Write-Host "  [MISSING] DRIP daemon not found - did you build the project?" -ForegroundColor Red
+    Write-Host "           Expected at: $BinDir\dripd.exe" -ForegroundColor Red
     $AllGood = $false
 }
 
@@ -175,10 +191,10 @@ if ($AllGood) {
     Write-Host "  $TorDir\tor\tor.exe -f $TorDataDir\torrc" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "  # Terminal 2 - Wait for Tor to reach 100%, then start DRIP:" -ForegroundColor Gray
-    Write-Host "  $DripRoot\build\bin\dripd.exe -drip -printtoconsole" -ForegroundColor Yellow
+    Write-Host "  $BinDir\dripd.exe -drip -printtoconsole" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "  # To get your onion address:" -ForegroundColor Gray
-    Write-Host "  $DripRoot\build\bin\drip-cli.exe -drip getnetworkinfo" -ForegroundColor Yellow
+    Write-Host "  $BinDir\drip-cli.exe -drip getnetworkinfo" -ForegroundColor Yellow
     Write-Host ""
     
     if ($StartServices) {
@@ -192,7 +208,7 @@ if ($AllGood) {
         Start-Sleep -Seconds 8
         
         # Start DRIP in new window
-        Start-Process cmd -ArgumentList "/k", "title DRIP-NODE && `"$DripRoot\build\bin\dripd.exe`" -drip -printtoconsole"
+        Start-Process cmd -ArgumentList "/k", "title DRIP-NODE && `"$BinDir\dripd.exe`" -drip -printtoconsole"
         
         Write-Host "Services started in separate windows!" -ForegroundColor Green
     }
