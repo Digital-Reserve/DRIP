@@ -214,14 +214,16 @@ add_all_test_targets()
 install_binary_component(test_bitcoin INTERNAL)
 
 # RAW Genesis Block Miner - standalone utility
-add_executable(genesis_miner_raw
-  genesis_miner_raw.cpp
-)
+if(BUILD_KERNEL_LIB)
+  add_executable(genesis_miner_raw
+    genesis_miner_raw.cpp
+  )
 
-target_link_libraries(genesis_miner_raw
-  bitcoinkernel
-  bitcoin_consensus
-  secp256k1
-)
+  target_link_libraries(genesis_miner_raw
+    bitcoinkernel
+    bitcoin_consensus
+    secp256k1
+  )
 
-install_binary_component(genesis_miner_raw INTERNAL)
+  install_binary_component(genesis_miner_raw INTERNAL)
+endif()

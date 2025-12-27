@@ -143,7 +143,7 @@ static bool GenerateBlock(ChainstateManager& chainman, CBlock&& block, uint64_t&
     // Log block structure for debugging
     auto target = DeriveTarget(block.nBits, chainman.GetConsensus().powLimit);
     LogInfo("Mining: Block height=%d, nBits=0x%08x, target=%s, prevHash=%s, merkleRoot=%s\n",
-            block.vtx.empty() ? -1 : (block.vtx[0]->vin[0].scriptSig.size() > 0 ? -1 : -1), // Can't easily get height here
+            -1, // Can't easily get height here
             block.nBits,
             target ? target->GetHex() : "INVALID",
             block.hashPrevBlock.ToString(),
@@ -152,7 +152,6 @@ static bool GenerateBlock(ChainstateManager& chainman, CBlock&& block, uint64_t&
     uint64_t tries_done = 0;
     uint32_t start_nonce = block.nNonce;
     const CBlockIndex* pindexPrev = WITH_LOCK(chainman.GetMutex(), return chainman.ActiveTip());
-    constexpr uint32_t NONCE_WRAP = std::numeric_limits<uint32_t>::max();
     constexpr uint32_t TIMESTAMP_UPDATE_INTERVAL = 0x1000000; // Update timestamp every 16M nonces
     
     // If max_tries is 0, mine infinitely until a block is found or interrupted
