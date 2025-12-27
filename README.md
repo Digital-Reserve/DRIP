@@ -29,7 +29,7 @@ DRIP fixes this by resetting the clock:
 | Algorithm | SHA256d (same as Bitcoin) |
 | P2P Port | 58333 |
 | RPC Port | 58332 |
-| Address Prefix | `D` (base58) / `drip1` (bech32) |
+| Address Prefix | `D` (base58) / `drip` (bech32) |
 
 ## Genesis Block
 
@@ -89,7 +89,7 @@ dripd -drip -proxy=127.0.0.1:9050 -onlynet=onion -listen
 
 - All Bitcoin consensus rules apply
 - BIP34, BIP65, BIP66, CSV, Segwit, Taproot active from block 1
-- Difficulty adjustment every 2016 blocks
+- Difficulty adjustment every 4032 blocks (2 weeks at 5-min blocks)
 - Genesis block reward is unspendable (like Bitcoin)
 
 ## Going Public

@@ -683,7 +683,7 @@ public:
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 210000; // 21 million supply
         consensus.BIP34Height = 1;
-        consensus.BIP34Hash = uint256{};
+        consensus.BIP34Hash = uint256{"00000000ee44411d80e174879fbb52f89f8efeae2423a51486aac4db05907dcc"}; // Genesis block hash
         consensus.BIP65Height = 1;
         consensus.BIP66Height = 1;
         consensus.CSVHeight = 1;
