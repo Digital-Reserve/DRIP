@@ -2858,10 +2858,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect, std
             // not use our limited outbound slots for them and to ensure
             // addnode connections benefit from their intended protections.
             if (AddedNodesContain(addr)) {
-                LogDebug(BCLog::NET, "Not making automatic %s%s connection to %s peer selected for manual (addnode) connection%s\n",
-                              preferred_net.has_value() ? "network-specific " : "",
-                              ConnectionTypeAsString(conn_type), GetNetworkName(addr.GetNetwork()),
-                              fLogIPs ? strprintf(": %s", addr.ToStringAddrPort()) : "");
+                // Skip silently - this check runs in a tight loop and logging here causes spam
                 continue;
             }
 
