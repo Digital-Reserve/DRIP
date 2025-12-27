@@ -1,6 +1,6 @@
 # DRIP
 
-**Decentralized Reset for Investing People**
+**Digital Reserve and Information Protocol**
 
 ## What is DRIP?
 
