@@ -2447,21 +2447,67 @@ void CConnman::ThreadHTTPAddressSeed(const std::vector<std::string>& httpSeeds, 
     }
 }
 
+/** Validate URL contains only safe characters to prevent shell injection.
+ *  Only allows: alphanumeric, dots, hyphens, underscores, slashes, colons, 
+ *  question marks, equals, ampersands, percent (for URL encoding).
+ */
+static bool IsValidHTTPSeedURL(const std::string& url)
+{
+    // Must start with https://
+    if (url.size() < 9 || url.substr(0, 8) != "https://") {
+        return false;
+    }
+    
+    // Check each character after https://
+    for (size_t i = 8; i < url.size(); ++i) {
+        char c = url[i];
+        // Allow: alphanumeric, safe URL characters
+        bool safe = (c >= 'a' && c <= 'z') ||
+                    (c >= 'A' && c <= 'Z') ||
+                    (c >= '0' && c <= '9') ||
+                    c == '.' || c == '-' || c == '_' ||
+                    c == '/' || c == ':' || c == '?' ||
+                    c == '=' || c == '&' || c == '%' ||
+                    c == '+' || c == '#';
+        if (!safe) {
+            return false;
+        }
+    }
+    
+    // Reject URLs with suspicious patterns that could be shell injection attempts
+    // Even with valid chars, patterns like $( or ` should not appear in URLs
+    if (url.find("$(") != std::string::npos ||
+        url.find('`') != std::string::npos ||
+        url.find("${") != std::string::npos ||
+        url.find('\n') != std::string::npos ||
+        url.find('\r') != std::string::npos ||
+        url.find(';') != std::string::npos ||
+        url.find('|') != std::string::npos ||
+        url.find('<') != std::string::npos ||
+        url.find('>') != std::string::npos ||
+        url.find('"') != std::string::npos ||
+        url.find('\'') != std::string::npos ||
+        url.find('\\') != std::string::npos) {
+        return false;
+    }
+    
+    return true;
+}
+
 bool CConnman::FetchHTTPSeed(const std::string& url, std::string& response)
 {
     // Simple HTTP fetch using system curl
     // Note: Requires curl to be installed. Can be improved with libcurl later.
-    // Only allow https:// URLs for security
-    if (url.substr(0, 8) != "https://") {
-        LogInfo("HTTP seed URL must use HTTPS: %s\n", url);
+    
+    // SECURITY: Strict URL validation to prevent shell injection
+    if (!IsValidHTTPSeedURL(url)) {
+        LogInfo("HTTP seed URL rejected (invalid format or unsafe characters): %s\n", url);
         return false;
     }
     
-    // Sanitize URL - escape shell special characters
-    std::string sanitizedUrl = url;
-    // Replace any potential shell injection characters (basic sanitization)
-    // In a production system, use proper URL validation
-    std::string command = "curl -s --max-time 10 --connect-timeout 5 --fail \"" + sanitizedUrl + "\" 2>/dev/null";
+    // URL is validated - safe to use in shell command
+    // Use single quotes to prevent any remaining shell interpretation
+    std::string command = "curl -s --max-time 10 --connect-timeout 5 --fail '" + url + "' 2>/dev/null";
     FILE* pipe = popen(command.c_str(), "r");
     if (!pipe) {
         return false;

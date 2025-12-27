@@ -683,7 +683,7 @@ public:
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 210000; // 21 million supply
         consensus.BIP34Height = 1;
-        consensus.BIP34Hash = uint256{"00000000ee44411d80e174879fbb52f89f8efeae2423a51486aac4db05907dcc"}; // Genesis block hash
+        consensus.BIP34Hash = uint256{"00000000d39fcd1295730934cc51a9e39d7afc97ba98c1c7a35566763d9c05f0"}; // Block 1 hash
         consensus.BIP65Height = 1;
         consensus.BIP66Height = 1;
         consensus.CSVHeight = 1;
@@ -696,20 +696,22 @@ public:
         consensus.enforce_BIP94 = false;
         consensus.fPowNoRetargeting = false;
 
+        // BIP9 deployment periods must match DifficultyAdjustmentInterval()
+        // With 5-minute blocks and 14-day timespan: 14*24*60*60 / (5*60) = 4032 blocks
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].min_activation_height = 0;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].threshold = 1815; // 90%
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].period = 2016;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].threshold = 3629; // 90% of 4032
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].period = 4032;
 
         // Deployment of Taproot (BIPs 340-342)
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].threshold = 1815; // 90%
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].period = 2016;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].threshold = 3629; // 90% of 4032
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].period = 4032;
 
         consensus.nMinimumChainWork = uint256{};
         consensus.defaultAssumeValid = uint256{};
