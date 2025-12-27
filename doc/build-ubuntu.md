@@ -11,11 +11,23 @@ sudo apt-get update
 sudo apt-get install -y build-essential cmake pkgconf python3 libevent-dev libboost-dev libsqlite3-dev
 ```
 
+**Minimum versions:** CMake 3.22+, GCC 11+ or Clang 16+
+
+Check your versions:
+```bash
+cmake --version
+gcc --version
+```
+
 ## Building DRIP
 
 ```bash
+# Clone the repository (skip if you already have it)
+git clone https://github.com/AnchorCoinDevelopment/DRIP.git
+cd DRIP
+
 # Configure the build
-cmake -B build
+cmake -B build -DBUILD_GUI=OFF
 
 # Build (use -j$(nproc) for parallel compilation)
 cmake --build build -j$(nproc)
@@ -27,6 +39,42 @@ The binaries will be in `build/bin/`:
 - `drip-tx` - Transaction tool
 - `drip-util` - Utility tool
 - `drip-wallet` - Wallet tool
+
+## Troubleshooting Build Issues
+
+### CMake not found or too old
+```bash
+# Install latest CMake from Kitware repository
+sudo apt-get install -y software-properties-common
+wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc | sudo apt-key add -
+sudo apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main"
+sudo apt-get update && sudo apt-get install cmake
+```
+
+### Low memory errors during compilation
+```bash
+# Use fewer parallel jobs, or add swap
+cmake --build build -j2  # Use 2 cores instead of all
+
+# Or reduce debug info
+cmake -B build -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O2 -g0"
+cmake --build build -j$(nproc)
+```
+
+### Missing dependencies error
+```bash
+# Check what's missing from the cmake output, common ones:
+sudo apt-get install libzmq3-dev         # For ZMQ support
+sudo apt-get install qt6-base-dev        # For GUI
+sudo apt-get install libcapnp-dev capnproto  # For IPC
+```
+
+### Clean rebuild
+```bash
+rm -rf build
+cmake -B build -DBUILD_GUI=OFF
+cmake --build build -j$(nproc)
+```
 
 ## Setting Up a DRIP Node with Tor
 

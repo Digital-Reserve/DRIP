@@ -64,19 +64,63 @@ dripd -drip -addnode=xc4dnfjzk7kyyda7jms5xngaldzvysi3lxkfpknhc3rb3ugyj7v2ahid.on
 
 ## Building from Source
 
-### Windows
+### Windows (Visual Studio 2022)
+
+**Prerequisites:** Install [Visual Studio 2022](https://visualstudio.microsoft.com/) with "Desktop development with C++" workload.
+
+Open "Developer PowerShell for VS 2022":
 ```powershell
-cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=OFF
-cmake --build build
+# Clone and build
+git clone https://github.com/AnchorCoinDevelopment/DRIP.git
+cd DRIP
+
+# Configure with VS2022 preset (handles dependencies via vcpkg)
+cmake -B build --preset vs2022-static -DBUILD_GUI=OFF
+
+# Build (add -j N for N parallel jobs)
+cmake --build build --config Release
 ```
 
-### Linux/macOS
+**Troubleshooting:**
+- If "path too long" error: `cmake -B build --preset vs2022-static -DBUILD_GUI=OFF -DVCPKG_INSTALL_OPTIONS="--x-buildtrees-root=C:\vcpkg"`
+- First build may take 10-20 minutes (vcpkg downloads dependencies)
+
+### Linux (Ubuntu/Debian)
+
 ```bash
+# Install dependencies
+sudo apt update
+sudo apt install -y build-essential cmake pkgconf python3 libevent-dev libboost-dev libsqlite3-dev
+
+# Clone and build
+git clone https://github.com/AnchorCoinDevelopment/DRIP.git
+cd DRIP
 cmake -B build -DBUILD_GUI=OFF
 cmake --build build -j$(nproc)
 ```
 
-Binaries: `build/bin/dripd`, `drip-cli`, `drip-wallet`, `drip-tx`
+### macOS
+
+```bash
+# Install dependencies
+brew install cmake boost libevent pkg-config sqlite
+
+# Clone and build
+git clone https://github.com/AnchorCoinDevelopment/DRIP.git
+cd DRIP
+cmake -B build -DBUILD_GUI=OFF
+cmake --build build -j$(sysctl -n hw.ncpu)
+```
+
+### Build Options
+
+| Option | Description |
+|--------|-------------|
+| `-DBUILD_GUI=ON` | Build Qt GUI (requires Qt6) |
+| `-DCMAKE_BUILD_TYPE=Release` | Optimized build (default: RelWithDebInfo) |
+| `-DENABLE_WALLET=OFF` | Disable wallet functionality |
+
+Binaries output to: `build/bin/` → `dripd`, `drip-cli`, `drip-wallet`, `drip-tx`
 
 ## Privacy
 
