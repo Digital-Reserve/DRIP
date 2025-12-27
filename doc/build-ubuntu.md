@@ -45,7 +45,7 @@ This script will:
 - Add your user to the `debian-tor` group
 - Create DRIP configuration at `~/.drip/bitcoin.conf`
 
-**Note:** If you were just added to the `debian-tor` group, you may need to log out and back in for the group change to take effect.
+**Important:** After running the setup script, you must log out and back in (or restart your terminal session) for the `debian-tor` group membership to take effect. Alternatively, you can use the startup script which handles this automatically.
 
 ### Step 2: Start the Node
 
