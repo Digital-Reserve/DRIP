@@ -1400,6 +1400,9 @@ private:
 
     void ThreadSocketHandler() EXCLUSIVE_LOCKS_REQUIRED(!m_total_bytes_sent_mutex, !mutexMsgProc, !m_nodes_mutex, !m_reconnections_mutex);
     void ThreadDNSAddressSeed() EXCLUSIVE_LOCKS_REQUIRED(!m_addr_fetches_mutex, !m_nodes_mutex);
+    void ThreadHTTPAddressSeed(const std::vector<std::string>& httpSeeds, FastRandomContext& rng) EXCLUSIVE_LOCKS_REQUIRED(!m_addr_fetches_mutex, !m_nodes_mutex);
+    bool FetchHTTPSeed(const std::string& url, std::string& response);
+    bool ParseHTTPSeedResponse(const std::string& json, std::vector<CAddress>& addresses, FastRandomContext& rng);
 
     uint64_t CalculateKeyedNetGroup(const CNetAddr& ad) const;
 

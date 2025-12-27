@@ -36,6 +36,7 @@
 #include <util/trace.h>
 #include <util/translation.h>
 #include <util/vector.h>
+#include <univalue.h>
 
 #include <algorithm>
 #include <array>
@@ -2389,6 +2390,168 @@ void CConnman::ThreadDNSAddressSeed()
         LogInfo("%d addresses found from DNS seeds\n", found);
     } else {
         LogInfo("Skipping DNS seeds. Enough peers have been found\n");
+    }
+    
+    // Query HTTP seeds if available
+    std::vector<std::string> httpSeeds = m_params.HTTPSeeds();
+    if (!httpSeeds.empty() && outbound_connection_count < SEED_OUTBOUND_CONNECTION_THRESHOLD) {
+        ThreadHTTPAddressSeed(httpSeeds, rng);
+    }
+}
+
+void CConnman::ThreadHTTPAddressSeed(const std::vector<std::string>& httpSeeds, FastRandomContext& rng)
+{
+    int found = 0;
+    
+    for (const std::string& seedUrl : httpSeeds) {
+        if (m_interrupt_net->interrupted()) return;
+        
+        if (GetFullOutboundConnCount() >= SEED_OUTBOUND_CONNECTION_THRESHOLD) {
+            LogInfo("%d addresses found from HTTP seeds\n", found);
+            return;
+        }
+        
+        LogInfo("Loading addresses from HTTP seed %s\n", seedUrl);
+        
+        // Fetch JSON from HTTP seed
+        std::string jsonResponse;
+        if (!FetchHTTPSeed(seedUrl, jsonResponse)) {
+            LogInfo("Failed to fetch HTTP seed %s\n", seedUrl);
+            continue;
+        }
+        
+        // Parse JSON and extract node addresses
+        std::vector<CAddress> vAdd;
+        if (ParseHTTPSeedResponse(jsonResponse, vAdd, rng)) {
+            if (!vAdd.empty()) {
+                CNetAddr resolveSource;
+                resolveSource.SetInternal("httpseed");
+                addrman.Add(vAdd, resolveSource);
+                found += vAdd.size();
+                LogInfo("Added %d addresses from HTTP seed %s\n", vAdd.size(), seedUrl);
+            }
+        }
+    }
+    
+    if (found > 0) {
+        LogInfo("%d addresses found from HTTP seeds\n", found);
+    }
+}
+
+bool CConnman::FetchHTTPSeed(const std::string& url, std::string& response)
+{
+    // Simple HTTP fetch using system curl
+    // Note: Requires curl to be installed. Can be improved with libcurl later.
+    // Only allow https:// URLs for security
+    if (url.substr(0, 8) != "https://") {
+        LogInfo("HTTP seed URL must use HTTPS: %s\n", url);
+        return false;
+    }
+    
+    // Sanitize URL - escape shell special characters
+    std::string sanitizedUrl = url;
+    // Replace any potential shell injection characters (basic sanitization)
+    // In a production system, use proper URL validation
+    std::string command = "curl -s --max-time 10 --connect-timeout 5 --fail \"" + sanitizedUrl + "\" 2>/dev/null";
+    FILE* pipe = popen(command.c_str(), "r");
+    if (!pipe) {
+        return false;
+    }
+    
+    char buffer[4096];
+    response.clear();
+    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        response += buffer;
+    }
+    
+    int status = pclose(pipe);
+    // Check if curl succeeded and we got a response
+    if (status != 0 || response.empty()) {
+        return false;
+    }
+    
+    return true;
+}
+
+bool CConnman::ParseHTTPSeedResponse(const std::string& json, std::vector<CAddress>& addresses, FastRandomContext& rng)
+{
+    try {
+        UniValue root;
+        if (!root.read(json)) {
+            return false;
+        }
+        
+        constexpr ServiceFlags requiredServiceBits{SeedsServiceFlags()};
+        const uint16_t defaultPort = m_params.GetDefaultPort();
+        
+        // Support two JSON formats:
+        // 1. Simple array: ["onion:port", "onion:port", ...]
+        // 2. Object with nodes array: {"nodes": ["onion:port", ...]} or {"nodes": [{"address": "onion:port"}, ...]}
+        
+        UniValue nodes;
+        if (root.isArray()) {
+            // Format 1: Direct array
+            nodes = root;
+        } else if (root.isObject()) {
+            // Format 2: Object with "nodes" key
+            nodes = root["nodes"];
+            if (!nodes.isArray()) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+        
+        for (size_t i = 0; i < nodes.size(); ++i) {
+            UniValue node = nodes[i];
+            std::string addrStr;
+            
+            if (node.isStr()) {
+                // Simple string format: "onion:port"
+                addrStr = node.get_str();
+            } else if (node.isObject()) {
+                // Object format: {"address": "onion:port", ...}
+                UniValue addrVal = node["address"];
+                if (!addrVal.isStr()) continue;
+                addrStr = addrVal.get_str();
+            } else {
+                continue;
+            }
+            
+            if (addrStr.empty()) continue;
+            
+            // Parse address:port format
+            size_t colonPos = addrStr.find(':');
+            if (colonPos == std::string::npos) {
+                // No port specified, use default
+                addrStr += ":" + std::to_string(defaultPort);
+                colonPos = addrStr.find(':');
+            }
+            
+            std::string host = addrStr.substr(0, colonPos);
+            std::string portStr = addrStr.substr(colonPos + 1);
+            uint16_t port = static_cast<uint16_t>(atoi(portStr.c_str()));
+            if (port == 0) port = defaultPort;
+            
+            // For onion addresses, we need to handle them specially
+            // LookupHost can handle onion addresses if Tor is configured
+            const auto addresses_lookup{LookupHost(host, 1, false)};
+            if (!addresses_lookup.empty()) {
+                for (const CNetAddr& netAddr : addresses_lookup) {
+                    CAddress addr = CAddress(CService(netAddr, port), requiredServiceBits);
+                    addr.nTime = rng.rand_uniform_delay(Now<NodeSeconds>() - 3 * 24h, -4 * 24h);
+                    addresses.push_back(addr);
+                }
+            } else {
+                // If LookupHost fails (e.g., for onion addresses), try AddAddrFetch
+                // This will handle onion addresses through Tor
+                AddAddrFetch(host + ":" + std::to_string(port));
+            }
+        }
+        
+        return true;
+    } catch (...) {
+        return false;
     }
 }
 

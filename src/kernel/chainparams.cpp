@@ -756,6 +756,10 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
         // No DNS seeds initially - community can add later
+        
+        // HTTP seeds for peer discovery (served from main repo via GitHub Pages)
+        vHttpSeeds.clear();
+        vHttpSeeds.emplace_back("https://digital-reserve.github.io/DRIP/seeds.json");
 
         // D prefix for addresses (0x1E = 30 gives 'D' in base58)
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 0x1E);
