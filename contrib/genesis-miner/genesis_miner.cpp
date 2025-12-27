@@ -1,7 +1,7 @@
-// Copyright (c) 2025 The RAW developers
+// Copyright (c) 2025 The DRIP developers
 // Distributed under the MIT software license
 
-// Simple genesis block miner for RAW network
+// Simple genesis block miner for DRIP network
 // Compile with: g++ -o genesis_miner genesis_miner.cpp -I../../src -I../../src/leveldb/include -I../../src/leveldb/helpers/memenv -I../../src/secp256k1/include -std=c++17 -O2
 
 #include <iostream>
@@ -76,7 +76,7 @@ bool CheckProofOfWork(const uint256& hash, uint32_t nBits) {
 }
 
 int main() {
-    std::cout << "Mining RAW genesis block..." << std::endl;
+    std::cout << "Mining DRIP genesis block..." << std::endl;
     std::cout << "Genesis message: WSJ 25/Dec/2025 The Economic Divide Between Big and Small Companies Is Growing" << std::endl;
     
     // Genesis block parameters
@@ -86,7 +86,7 @@ int main() {
     // Merkle root will be calculated from the coinbase transaction
     // For now, we'll use a placeholder - in real implementation, calculate from actual tx
     memset(genesis.hashMerkleRoot.data, 0, 32);
-    genesis.nTime = 1766611200; // Dec 25, 2025 00:00:00 UTC
+    genesis.nTime = 1766620800; // Dec 25, 2025 00:00:00 UTC (correct timestamp)
     genesis.nBits = 0x1d00ffff;
     genesis.nNonce = 0;
     

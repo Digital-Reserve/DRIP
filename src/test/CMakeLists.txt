@@ -213,7 +213,7 @@ add_all_test_targets()
 
 install_binary_component(test_bitcoin INTERNAL)
 
-# RAW Genesis Block Miner - standalone utility
+# DRIP Genesis Block Miner - standalone utility
 if(BUILD_KERNEL_LIB)
   add_executable(genesis_miner_raw
     genesis_miner_raw.cpp

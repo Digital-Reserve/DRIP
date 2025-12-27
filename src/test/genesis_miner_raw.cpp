@@ -29,7 +29,7 @@ int main() {
     const char* drip_genesis_msg = "WSJ 25/Dec/2025 The Economic Divide Between Big and Small Companies Is Growing";
     const CScript drip_genesis_script = CScript() << "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"_hex << OP_CHECKSIG;
     
-    uint32_t nTime = 1766611200; // Dec 25, 2025 00:00:00 UTC
+    uint32_t nTime = 1766620800; // Dec 25, 2025 00:00:00 UTC (correct timestamp)
     uint32_t nBits = 0x1d00ffff;
     int32_t nVersion = 1;
     CAmount genesisReward = 50 * COIN;

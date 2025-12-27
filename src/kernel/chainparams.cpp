@@ -735,10 +735,10 @@ public:
         const CScript drip_genesis_script = CScript() << "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"_hex << OP_CHECKSIG;
         
         // Genesis block parameters
-        // Successfully mined on December 25, 2025
-        // Mining time: 1465 seconds (~24 minutes) at 1.9M hashes/sec
-        uint32_t genesisTime = 1766611200; // Dec 25, 2025 00:00:00 UTC
-        uint32_t genesisNonce = 2789142740; // 0xa63ef0d4
+        // Re-mined on December 27, 2025 with corrected timestamp
+        // Previous timestamp 1766611200 was incorrectly Dec 24, 2025 21:20:00 UTC
+        uint32_t genesisTime = 1766620800; // Dec 25, 2025 00:00:00 UTC (correct)
+        uint32_t genesisNonce = 47837911; // 0x02d9f2d7
         uint32_t nBits = 0x1d00ffff; // Initial difficulty (same as Bitcoin)
         
         genesis = CreateGenesisBlock(drip_genesis_msg,
@@ -752,7 +752,7 @@ public:
         consensus.hashGenesisBlock = genesis.GetHash();
         
         // Verify genesis block hash and merkle root
-        assert(consensus.hashGenesisBlock == uint256{"00000000ee44411d80e174879fbb52f89f8efeae2423a51486aac4db05907dcc"});
+        assert(consensus.hashGenesisBlock == uint256{"00000000ef0945a11c9eab83c04c5dc6185477289bf25d695db9cf7cba00130c"});
         assert(genesis.hashMerkleRoot == uint256{"9b04bdee3647d6c7ba0c537214e75eb8045d13d63e0eabffbd2aea95a9ebba5e"});
 
         vFixedSeeds.clear();

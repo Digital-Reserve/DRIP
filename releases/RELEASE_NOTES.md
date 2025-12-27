@@ -1,40 +1,55 @@
-# DRIP v1.0.1 Release
+# DRIP v1.0.2 Release
 
 **Digital Reserve and Information Protocol**
+
+## ⚠️ CRITICAL: Genesis Block Fix - Upgrade Required
+
+**This release fixes a genesis block timestamp error. All nodes must upgrade and reset their blockchain data.**
+
+The previous genesis block had timestamp `1766611200` (Dec 24, 2025 21:20:00 UTC) but was documented as Dec 25, 2025. This has been corrected to `1766620800` (Dec 25, 2025 00:00:00 UTC).
 
 ## Downloads
 
 | Platform | File | Size |
 |----------|------|------|
-| Linux x86_64 | `drip-v1.0.1-linux-x86_64.tar.gz` | ~12 MB |
+| Linux x86_64 | `drip-v1.0.2-linux-x86_64.tar.gz` | ~13 MB |
 | Windows | Coming soon (use WSL or build from source) | - |
 
-## What's New in v1.0.1
+## What's New in v1.0.2
 
 ### Critical Fixes
 
-- **BIP9 Deployment Period Fix**: Corrected deployment periods from 2016 to 4032 blocks to match DRIP's 5-minute block time. Threshold adjusted proportionally (1815 → 3629 for 90%).
+- **Genesis Block Timestamp Correction**: Fixed genesis block timestamp from `1766611200` (Dec 24, 2025 21:20:00 UTC) to `1766620800` (Dec 25, 2025 00:00:00 UTC). This ensures the genesis message date matches the actual block time.
 
-- **Security: HTTP Seed Validation**: Fixed potential shell injection vulnerability in HTTP seed fetching. Added strict URL validation that only allows safe characters.
+- **New Genesis Block Hash**: `00000000ef0945a11c9eab83c04c5dc6185477289bf25d695db9cf7cba00130c`
 
-- **BIP34Hash Correction**: Updated to actual block 1 hash (`00000000d39fcd1295730934cc51a9e39d7afc97ba98c1c7a35566763d9c05f0`).
+- **Updated Genesis Nonce**: `47837911` (0x02d9f2d7)
 
-### Upgrade Instructions
+### Code Cleanup
 
-This is a recommended upgrade for all node operators. Simply replace your binaries and restart:
+- Updated remaining "RAW" references to "DRIP" in genesis miner code
+
+## Upgrade Instructions
+
+**⚠️ IMPORTANT: This is a breaking change. You must delete your blockchain data.**
 
 ```bash
 # Stop your node
-./drip-cli -drip stop
+./drip-cli -chain=drip stop
+
+# Delete blockchain data (keeps wallet!)
+rm -rf ~/.drip/drip/blocks ~/.drip/drip/chainstate
+rm -f ~/.drip/drip/peers.dat ~/.drip/drip/banlist.json
 
 # Extract new release
-tar -xzf drip-v1.0.1-linux-x86_64.tar.gz
+tar -xzf drip-v1.0.2-linux-x86_64.tar.gz
+cd drip-v1.0.2-linux-x86_64
 
 # Start node
-./drip-v1.0.1-linux-x86_64/dripd -drip -printtoconsole
+./dripd -chain=drip -printtoconsole
 ```
 
-Your existing wallet and blockchain data will continue to work.
+Your wallet file is preserved but will have 0 balance since the blockchain was reset.
 
 ---
 
@@ -50,15 +65,15 @@ Your existing wallet and blockchain data will continue to work.
 
 ```bash
 # Extract
-tar -xzf drip-v1.0.1-linux-x86_64.tar.gz
-cd drip-v1.0.1-linux-x86_64
+tar -xzf drip-v1.0.2-linux-x86_64.tar.gz
+cd drip-v1.0.2-linux-x86_64
 
 # Run node
-./dripd -drip -printtoconsole
+./dripd -chain=drip -printtoconsole
 
 # In another terminal, create wallet and get address
-./drip-cli -drip createwallet mywallet
-./drip-cli -drip getnewaddress
+./drip-cli -chain=drip createwallet mywallet
+./drip-cli -chain=drip getnewaddress
 ```
 
 ## Network Specifications
@@ -74,15 +89,22 @@ cd drip-v1.0.1-linux-x86_64
 
 ## Genesis Block
 
-- **Hash:** `00000000ee44411d80e174879fbb52f89f8efeae2423a51486aac4db05907dcc`
+- **Hash:** `00000000ef0945a11c9eab83c04c5dc6185477289bf25d695db9cf7cba00130c`
+- **Timestamp:** `1766620800` (Dec 25, 2025 00:00:00 UTC)
+- **Nonce:** `47837911`
 - **Message:** "WSJ 25/Dec/2025 The Economic Divide Between Big and Small Companies Is Growing"
+- **Merkle Root:** `9b04bdee3647d6c7ba0c537214e75eb8045d13d63e0eabffbd2aea95a9ebba5e`
 
 ## Verification
 
 ```bash
 # Verify genesis hash
-./drip-cli -drip getblockhash 0
-# Should return: 00000000ee44411d80e174879fbb52f89f8efeae2423a51486aac4db05907dcc
+./drip-cli -chain=drip getblockhash 0
+# Should return: 00000000ef0945a11c9eab83c04c5dc6185477289bf25d695db9cf7cba00130c
+
+# Verify genesis timestamp
+./drip-cli -chain=drip getblock $(./drip-cli -chain=drip getblockhash 0) | grep time
+# Should show: "time": 1766620800
 ```
 
 ## Building from Source
