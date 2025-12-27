@@ -79,3 +79,5 @@ target/
 /scan_result.txt
 /__pycache__/
 /ANONYMOUS_RELEASE/
+# Downloaded Tor bundle (use setup script to install)
+tor/
