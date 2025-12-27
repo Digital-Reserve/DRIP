@@ -37,29 +37,29 @@ DRIP fixes this by resetting the clock:
 |-------|-------|
 | Message | "WSJ 25/Dec/2025 The Economic Divide Between Big and Small Companies Is Growing" |
 | Timestamp | December 25, 2025 00:00:00 UTC |
-| Hash | `00000000ee44411d80e174879fbb52f89f8efeae2423a51486aac4db05907dcc` |
+| Hash | `00000000ef0945a11c9eab83c04c5dc6185477289bf25d695db9cf7cba00130c` |
 
 ## Quick Start
 
 ### Run a Node
 ```bash
 # Windows
-dripd.exe -drip
+dripd.exe -chain=drip
 
 # Linux/macOS
-./dripd -drip
+./dripd -chain=drip
 ```
 
 ### Create Wallet & Mine
 ```bash
-drip-cli -drip createwallet "mywallet"
-drip-cli -drip getnewaddress
-drip-cli -drip generatetoaddress 1 YOUR_ADDRESS
+drip-cli -chain=drip createwallet "mywallet"
+drip-cli -chain=drip getnewaddress
+drip-cli -chain=drip generatetoaddress 1 YOUR_ADDRESS
 ```
 
 ### Connect to Peers
 ```bash
-dripd -drip -addnode=IP_ADDRESS:58333
+dripd -chain=drip -addnode=xc4dnfjzk7kyyda7jms5xngaldzvysi3lxkfpknhc3rb3ugyj7v2ahid.onion:58333
 ```
 
 ## Building from Source
@@ -82,7 +82,7 @@ Binaries: `build/bin/dripd`, `drip-cli`, `drip-wallet`, `drip-tx`
 
 Run over Tor for anonymity:
 ```bash
-dripd -drip -proxy=127.0.0.1:9050 -onlynet=onion -listen
+dripd -chain=drip -proxy=127.0.0.1:9050 -onlynet=onion -listen
 ```
 
 ## Technical Details
