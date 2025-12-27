@@ -2393,9 +2393,16 @@ void CConnman::ThreadDNSAddressSeed()
     }
     
     // Query HTTP seeds if available
+    // Check current connection count, not stale outbound_connection_count
     std::vector<std::string> httpSeeds = m_params.HTTPSeeds();
-    if (!httpSeeds.empty() && outbound_connection_count < SEED_OUTBOUND_CONNECTION_THRESHOLD) {
-        ThreadHTTPAddressSeed(httpSeeds, rng);
+    int current_outbound = GetFullOutboundConnCount();
+    if (!httpSeeds.empty()) {
+        if (current_outbound < SEED_OUTBOUND_CONNECTION_THRESHOLD) {
+            LogInfo("Querying HTTP seeds (outbound connections: %d, threshold: %d)\n", current_outbound, SEED_OUTBOUND_CONNECTION_THRESHOLD);
+            ThreadHTTPAddressSeed(httpSeeds, rng);
+        } else {
+            LogInfo("Skipping HTTP seeds (outbound connections: %d >= threshold: %d)\n", current_outbound, SEED_OUTBOUND_CONNECTION_THRESHOLD);
+        }
     }
 }
 
@@ -2416,9 +2423,11 @@ void CConnman::ThreadHTTPAddressSeed(const std::vector<std::string>& httpSeeds, 
         // Fetch JSON from HTTP seed
         std::string jsonResponse;
         if (!FetchHTTPSeed(seedUrl, jsonResponse)) {
-            LogInfo("Failed to fetch HTTP seed %s\n", seedUrl);
+            LogInfo("Failed to fetch HTTP seed %s (curl may not be installed or URL unreachable)\n", seedUrl);
             continue;
         }
+        
+        LogInfo("Successfully fetched HTTP seed response (%zu bytes)\n", jsonResponse.size());
         
         // Parse JSON and extract node addresses
         std::vector<CAddress> vAdd;
