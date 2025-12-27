@@ -1,107 +1,157 @@
-# Windows / MSVC Build Guide
+# Windows Build Guide
 
-This guide describes how to build bitcoind, command-line utilities, and GUI on Windows using Microsoft Visual Studio.
+This guide describes how to build DRIP on Windows using Visual Studio.
 
 For cross-compiling options, please see [`build-windows.md`](./build-windows.md).
 
-## Preparation
+## Quick Start
 
-### 1. Visual Studio
-
-This guide relies on using CMake and vcpkg package manager provided with the Visual Studio installation.
-Here are requirements for the Visual Studio installation:
-1. Minimum required version: Visual Studio 2022 version 17.13.
-2. Installed components:
-- The "Desktop development with C++" workload.
-
-The commands in this guide should be executed in "Developer PowerShell for VS 2022" or "Developer Command Prompt for VS 2022".
-The former is assumed hereinafter.
-
-### 2. Git
-
-Download and install [Git for Windows](https://git-scm.com/downloads/win). Once installed, Git is available from PowerShell or the Command Prompt.
-
-### 3. Clone Bitcoin Repository
-
-Clone the Bitcoin Core repository to a directory. All build scripts and commands will run from this directory.
-```
-git clone https://github.com/bitcoin/bitcoin.git
-```
-
-
-## Triplets and Presets
-
-The Bitcoin Core project supports the following vcpkg triplets:
-- `x64-windows` (both CRT and library linkage is dynamic)
-- `x64-windows-static` (both CRT and library linkage is static)
-
-To facilitate build process, the Bitcoin Core project provides presets, which are used in this guide.
-
-Available presets can be listed as follows:
-```
-cmake --list-presets
-```
-
-By default, all presets set `BUILD_GUI` to `ON`.
-
-## Building
-
-CMake will put the resulting object files, libraries, and executables into a dedicated build directory.
-
-In the following instructions, the "Debug" configuration can be specified instead of the "Release" one.
-
-Run `cmake -B build -LH` to see the full list of available options.
-
-### 4. Building with Static Linking with GUI
-
-```
-cmake -B build --preset vs2022-static          # It might take a while if the vcpkg binary cache is unpopulated or invalidated.
-cmake --build build --config Release           # Append "-j N" for N parallel jobs.
-ctest --test-dir build --build-config Release  # Append "-j N" for N parallel tests.
-cmake --install build --config Release         # Optional.
-```
-
-### 5. Building with Dynamic Linking without GUI
-
-```
-cmake -B build --preset vs2022 -DBUILD_GUI=OFF # It might take a while if the vcpkg binary cache is unpopulated or invalidated.
-cmake --build build --config Release           # Append "-j N" for N parallel jobs.
-ctest --test-dir build --build-config Release  # Append "-j N" for N parallel tests.
-```
-
-### 6. vcpkg-specific Issues and Workarounds
-
-vcpkg installation during the configuration step might fail for various reasons unrelated to Bitcoin Core.
-
-If the failure is due to a "Buildtrees path … is too long" error, which is often encountered when building
-with `BUILD_GUI=ON` and using the default vcpkg installation provided by Visual Studio, you can
-specify a shorter path to store intermediate build files by using
-the [`--x-buildtrees-root`](https://learn.microsoft.com/en-us/vcpkg/commands/common-options#buildtrees-root) option:
+If you just want to build DRIP quickly, run these commands in **Developer PowerShell** or **Developer Command Prompt**:
 
 ```powershell
-cmake -B build --preset vs2022-static -DVCPKG_INSTALL_OPTIONS="--x-buildtrees-root=C:\vcpkg"
+# One-time setup: Install vcpkg
+git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
+C:\vcpkg\bootstrap-vcpkg.bat
+
+# Clone and build DRIP
+git clone https://github.com/AnchorCoinDevelopment/DRIP.git C:\drip
+cd C:\drip
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF
+cmake --build build --config Release
 ```
 
-If vcpkg installation fails with the message "Paths with embedded space may be handled incorrectly", which
-can occur if your local Bitcoin Core repository path contains spaces, you can override the vcpkg install directory
-by setting the [`VCPKG_INSTALLED_DIR`](https://github.com/microsoft/vcpkg-docs/blob/main/vcpkg/users/buildsystems/cmake-integration.md#vcpkg_installed_dir) variable:
+Binaries will be in `build\bin\Release\` → `dripd.exe`, `drip-cli.exe`, etc.
+
+---
+
+## Detailed Instructions
+
+### 1. Prerequisites
+
+| Software | Download |
+|----------|----------|
+| Visual Studio 2019/2022/2024 | [visualstudio.microsoft.com](https://visualstudio.microsoft.com/) |
+| Git for Windows | [git-scm.com](https://git-scm.com/downloads/win) |
+| CMake 3.22+ | [cmake.org](https://cmake.org/download/) |
+
+**Visual Studio Requirements:**
+- Install the **"Desktop development with C++"** workload
+- Any recent version works (2019, 2022, or later) - CMake auto-detects
+
+### 2. Install vcpkg Package Manager
+
+vcpkg handles all C++ dependencies automatically. Install it once:
+
+**PowerShell:**
+```powershell
+git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
+C:\vcpkg\bootstrap-vcpkg.bat
+```
+
+**CMD:**
+```cmd
+git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
+C:\vcpkg\bootstrap-vcpkg.bat
+```
+
+### 3. Clone DRIP Repository
 
 ```powershell
-cmake -B build --preset vs2022-static -DVCPKG_INSTALLED_DIR="C:\path_without_spaces"
+git clone https://github.com/AnchorCoinDevelopment/DRIP.git C:\drip
+cd C:\drip
 ```
 
-## Performance Notes
+### 4. Configure Build
 
-### 7. vcpkg Manifest Default Features
+Open **Developer PowerShell for VS** or **Developer Command Prompt** (not regular PowerShell/CMD):
 
-One can skip vcpkg manifest default features to speedup the configuration step.
-For example, the following invocation will skip all features except for "wallet" and "tests" and their dependencies:
+**Clean any previous build (if exists):**
+
+PowerShell:
+```powershell
+if (Test-Path build) { Remove-Item -Recurse -Force build }
 ```
-cmake -B build --preset vs2022 -DVCPKG_MANIFEST_NO_DEFAULT_FEATURES=ON -DVCPKG_MANIFEST_FEATURES="wallet;tests" -DBUILD_GUI=OFF -DWITH_ZMQ=OFF
+
+CMD:
+```cmd
+if exist build rmdir /s /q build
 ```
 
-Available features are listed in the [`vcpkg.json`](/vcpkg.json) file.
+**Configure:**
+```powershell
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF
+```
 
-### 8. Antivirus Software
+> **Note:** First configuration takes 10-20 minutes as vcpkg downloads and compiles dependencies.
 
-To improve the build process performance, one might add the Bitcoin repository directory to the Microsoft Defender Antivirus exclusions.
+### 5. Build
+
+```powershell
+cmake --build build --config Release
+```
+
+Add `-j N` for parallel builds (e.g., `-j 8` for 8 cores).
+
+### 6. Verify
+
+```powershell
+.\build\bin\Release\dripd.exe --version
+.\build\bin\Release\drip-cli.exe --version
+```
+
+---
+
+## Troubleshooting
+
+### "Generator does not match previous build"
+
+Delete the build folder and reconfigure:
+```powershell
+Remove-Item -Recurse -Force build
+# Then run cmake -B build ... again
+```
+
+### "Buildtrees path is too long"
+
+Add a shorter path for vcpkg build files:
+```powershell
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=C:\vcpkg\bt
+```
+
+### "Could not find any instance of Visual Studio"
+
+- Make sure you're running from **Developer PowerShell/Command Prompt**, not regular PowerShell/CMD
+- Or set the VS path manually: Start Menu → Visual Studio → "Developer PowerShell for VS 20XX"
+
+### "Paths with embedded space may be handled incorrectly"
+
+Clone to a path without spaces (e.g., `C:\drip` not `C:\My Projects\drip`)
+
+### Antivirus Slowing Build
+
+Add `C:\drip` and `C:\vcpkg` to Windows Defender exclusions for faster builds.
+
+---
+
+## Build Options
+
+| Option | Description |
+|--------|-------------|
+| `-DBUILD_GUI=ON` | Build Qt GUI (requires Qt6) |
+| `-DCMAKE_BUILD_TYPE=Release` | Optimized build |
+| `-DENABLE_WALLET=OFF` | Disable wallet functionality |
+| `-DWITH_ZMQ=ON` | Enable ZMQ notifications |
+
+Run `cmake -B build -LH` to see all available options.
+
+---
+
+## Running DRIP
+
+```powershell
+# Start the daemon
+.\build\bin\Release\dripd.exe -drip
+
+# In another terminal, use CLI
+.\build\bin\Release\drip-cli.exe -drip getblockchaininfo
+```

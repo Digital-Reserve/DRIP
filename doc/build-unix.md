@@ -1,19 +1,37 @@
-UNIX BUILD NOTES
-====================
-Some notes on how to build Bitcoin Core in Unix.
+# Linux/Unix Build Guide
+
+This guide describes how to build DRIP on Linux and Unix systems.
 
 (For BSD specific instructions, see `build-*bsd.md` in this directory.)
 
-To Build
----------------------
+## Quick Start (Ubuntu/Debian)
 
 ```bash
-cmake -B build
+# Install dependencies
+sudo apt update
+sudo apt install -y build-essential cmake pkgconf python3 libevent-dev libboost-dev libsqlite3-dev
+
+# Clone and build
+git clone https://github.com/AnchorCoinDevelopment/DRIP.git
+cd DRIP
+cmake -B build -DBUILD_GUI=OFF
+cmake --build build -j$(nproc)
 ```
+
+Binaries will be in `build/bin/` → `dripd`, `drip-cli`, `drip-wallet`, `drip-tx`
+
+---
+
+## Standard Build
+
+```bash
+cmake -B build -DBUILD_GUI=OFF
+```
+
 Run `cmake -B build -LH` to see the full list of available options.
 
 ```bash
-cmake --build build    # Append "-j N" for N parallel jobs
+cmake --build build -j$(nproc)
 cmake --install build  # Optional
 ```
 
