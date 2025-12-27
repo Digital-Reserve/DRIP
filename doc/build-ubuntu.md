@@ -84,7 +84,7 @@ Or use the helper script:
 To connect to other DRIP nodes, add them to your `~/.drip/bitcoin.conf`:
 
 ```
-addnode=iuout7wdgmmsum2raasqr2oq4l7o2q5wgdo3lgvglbo63jikpp3fadqd.onion:58333
+addnode=xc4dnfjzk7kyyda7jms5xngaldzvysi3lxkfpknhc3rb3ugyj7v2ahid.onion:58333
 ```
 
 Then restart your node.

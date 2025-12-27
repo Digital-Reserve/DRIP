@@ -138,7 +138,7 @@ server=1
 # ===============
 # Add peers here as you find them
 # ===============
-# Example: addnode=iuout7wdgmmsum2raasqr2oq4l7o2q5wgdo3lgvglbo63jikpp3fadqd.onion:58333
+# Example: addnode=xc4dnfjzk7kyyda7jms5xngaldzvysi3lxkfpknhc3rb3ugyj7v2ahid.onion:58333
 EOF
 
 echo -e "  Created: ${GREEN}$DRIP_DATA_DIR/bitcoin.conf${NC}"

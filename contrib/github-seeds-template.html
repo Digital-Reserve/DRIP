@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DRIP Network Seeds</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: monospace; padding: 20px; max-width: 800px; margin: 0 auto; }
+        h1 { color: #0066cc; }
+        .node { background: #f5f5f5; padding: 10px; margin: 5px 0; border-radius: 4px; }
+        .copy-btn { background: #0066cc; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; }
+        .copy-btn:hover { background: #0052a3; }
+    </style>
+</head>
+<body>
+    <h1>DRIP Network Seed Nodes</h1>
+    <p>Add these nodes to your <code>~/.drip/bitcoin.conf</code>:</p>
+    
+    <div class="node">
+        <code>addnode=xc4dnfjzk7kyyda7jms5xngaldzvysi3lxkfpknhc3rb3ugyj7v2ahid.onion:58333</code>
+        <button class="copy-btn" onclick="copyToClipboard('xc4dnfjzk7kyyda7jms5xngaldzvysi3lxkfpknhc3rb3ugyj7v2ahid.onion:58333')">Copy</button>
+    </div>
+    
+    <h2>Or use RPC command:</h2>
+    <pre>./build/bin/drip-cli -chain=drip addnode "xc4dnfjzk7kyyda7jms5xngaldzvysi3lxkfpknhc3rb3ugyj7v2ahid.onion:58333" "add"</pre>
+    
+    <h2>JSON API (for future automation):</h2>
+    <p><a href="seeds.json">seeds.json</a></p>
+    
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText('addnode=' + text).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>
