@@ -44,22 +44,22 @@ DRIP fixes this by resetting the clock:
 ### Run a Node
 ```bash
 # Windows
-dripd.exe -chain=drip
+dripd.exe -drip
 
 # Linux/macOS
-./dripd -chain=drip
+./dripd -drip
 ```
 
 ### Create Wallet & Mine
 ```bash
-drip-cli -chain=drip createwallet "mywallet"
-drip-cli -chain=drip getnewaddress
-drip-cli -chain=drip generatetoaddress 1 YOUR_ADDRESS
+drip-cli -drip createwallet "mywallet"
+drip-cli -drip getnewaddress
+drip-cli -drip generatetoaddress 1 YOUR_ADDRESS
 ```
 
 ### Connect to Peers
 ```bash
-dripd -chain=drip -addnode=xc4dnfjzk7kyyda7jms5xngaldzvysi3lxkfpknhc3rb3ugyj7v2ahid.onion:58333
+dripd -drip -addnode=xc4dnfjzk7kyyda7jms5xngaldzvysi3lxkfpknhc3rb3ugyj7v2ahid.onion:58333
 ```
 
 ## Building from Source
@@ -82,7 +82,7 @@ Binaries: `build/bin/dripd`, `drip-cli`, `drip-wallet`, `drip-tx`
 
 Run over Tor for anonymity:
 ```bash
-dripd -chain=drip -proxy=127.0.0.1:9050 -onlynet=onion -listen
+dripd -drip -proxy=127.0.0.1:9050 -onlynet=onion -listen
 ```
 
 ## Technical Details
