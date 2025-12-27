@@ -2506,9 +2506,16 @@ bool CConnman::FetchHTTPSeed(const std::string& url, std::string& response)
     }
     
     // URL is validated - safe to use in shell command
-    // Use single quotes to prevent any remaining shell interpretation
+    // Platform-specific command construction
+#ifdef WIN32
+    // Windows: use double quotes and redirect stderr to NUL
+    std::string command = "curl -s --max-time 10 --connect-timeout 5 --fail \"" + url + "\" 2>NUL";
+    FILE* pipe = _popen(command.c_str(), "r");
+#else
+    // Unix: use single quotes and redirect stderr to /dev/null
     std::string command = "curl -s --max-time 10 --connect-timeout 5 --fail '" + url + "' 2>/dev/null";
     FILE* pipe = popen(command.c_str(), "r");
+#endif
     if (!pipe) {
         return false;
     }
@@ -2519,7 +2526,11 @@ bool CConnman::FetchHTTPSeed(const std::string& url, std::string& response)
         response += buffer;
     }
     
+#ifdef WIN32
+    int status = _pclose(pipe);
+#else
     int status = pclose(pipe);
+#endif
     // Check if curl succeeded and we got a response
     if (status != 0 || response.empty()) {
         return false;
