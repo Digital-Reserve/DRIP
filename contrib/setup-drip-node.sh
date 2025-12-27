@@ -2,6 +2,20 @@
 # DRIP Node Setup Script for Linux
 # This script sets up Tor and configures DRIP for running with onion support
 # Run this after building DRIP on a new machine
+#
+# BUILD INSTRUCTIONS (run before this script):
+# --------------------------------------------
+# Ubuntu/Debian:
+#   sudo apt-get install build-essential cmake pkgconf python3 \
+#       libevent-dev libboost-dev libsqlite3-dev
+#
+#   git clone https://github.com/Digital-Reserve/DRIP.git
+#   cd DRIP
+#   cmake -B build -DENABLE_IPC=OFF
+#   cmake --build build -j$(nproc)
+#
+# Then run: ./contrib/setup-drip-node.sh
+# --------------------------------------------
 
 set -e
 
