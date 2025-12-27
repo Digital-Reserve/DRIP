@@ -115,9 +115,8 @@ cat > "$DRIP_DATA_DIR/bitcoin.conf" << 'EOF'
 # ===============
 listen=1
 
-# Enable debug logging for Tor and network
+# Enable debug logging for Tor
 debug=tor
-debug=net
 
 # ===============
 # Tor Settings

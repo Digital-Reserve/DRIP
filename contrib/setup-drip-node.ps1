@@ -111,7 +111,6 @@ $DripConfig = @"
 # Network Settings
 listen=1
 debug=tor
-debug=net
 
 # Tor Settings
 proxy=127.0.0.1:9050
