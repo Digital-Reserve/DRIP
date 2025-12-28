@@ -106,6 +106,10 @@ dripd -drip -proxy=127.0.0.1:9050 -onlynet=onion -listen
 - [Build on macOS](doc/build-osx.md)
 - [Tor Setup](doc/tor.md)
 
+## Community
+
+- [Discord](https://discord.gg/vKGG89y3) - Join the DRIP community for discussions, support, and updates
+
 ## License
 
 MIT License. See [COPYING](COPYING).
