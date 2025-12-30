@@ -119,11 +119,29 @@ struct Params {
     bool fPowNoRetargeting;
     int64_t nPowTargetSpacing;
     int64_t nPowTargetTimespan;
+    /** DRIP: Fork height for faster difficulty adjustment (0 = disabled) */
+    int nDifficultyForkHeight{0};
+    /** DRIP: New timespan after fork (3.5 days for 1008-block intervals) */
+    int64_t nPowTargetTimespanV2{0};
     std::chrono::seconds PowTargetSpacing() const
     {
         return std::chrono::seconds{nPowTargetSpacing};
     }
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
+    /** DRIP: Get difficulty adjustment interval for a specific height */
+    int64_t DifficultyAdjustmentIntervalAtHeight(int height) const {
+        if (nDifficultyForkHeight > 0 && height >= nDifficultyForkHeight) {
+            return nPowTargetTimespanV2 / nPowTargetSpacing;
+        }
+        return nPowTargetTimespan / nPowTargetSpacing;
+    }
+    /** DRIP: Get target timespan for a specific height */
+    int64_t PowTargetTimespanAtHeight(int height) const {
+        if (nDifficultyForkHeight > 0 && height >= nDifficultyForkHeight) {
+            return nPowTargetTimespanV2;
+        }
+        return nPowTargetTimespan;
+    }
     /** The best chain should have at least this much work */
     uint256 nMinimumChainWork;
     /** By default assume that the signatures in ancestors of this block are valid */

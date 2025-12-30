@@ -91,6 +91,7 @@ dripd -drip -proxy=127.0.0.1:9050 -onlynet=onion -listen
 - All Bitcoin consensus rules apply
 - BIP34, BIP65, BIP66, CSV, Segwit, Taproot active from block 1
 - Difficulty adjustment every 4032 blocks (2 weeks at 5-min blocks)
+- **Fork at block 35,000**: Difficulty adjustment changes to every 1008 blocks (3.5 days)
 - Genesis block reward is unspendable (like Bitcoin)
 
 ## Going Public

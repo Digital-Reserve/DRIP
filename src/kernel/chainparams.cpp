@@ -690,8 +690,11 @@ public:
         consensus.SegwitHeight = 1;
         consensus.MinBIP9WarningHeight = 0;
         consensus.powLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
-        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
+        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks (4032 blocks at 5-min target)
         consensus.nPowTargetSpacing = 5 * 60; // 5 minutes
+        // DRIP Difficulty Fork: faster adjustment starting at block 35000
+        consensus.nDifficultyForkHeight = 35000;
+        consensus.nPowTargetTimespanV2 = 3.5 * 24 * 60 * 60; // 3.5 days (1008 blocks at 5-min target)
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.enforce_BIP94 = false;
         consensus.fPowNoRetargeting = false;
