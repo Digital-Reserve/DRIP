@@ -18,9 +18,10 @@ static bool IsDifficultyAdjustmentBoundary(int height, const Consensus::Params& 
     if (params.nDifficultyForkHeight == 0 || height < params.nDifficultyForkHeight) {
         return height % params.DifficultyAdjustmentInterval() == 0;
     }
-    // At fork height: always adjust
+    // At fork height: do NOT adjust (avoids measuring wrong period)
+    // First post-fork adjustment will happen at nDifficultyForkHeight + 1008
     if (height == params.nDifficultyForkHeight) {
-        return true;
+        return false;
     }
     // After fork: use new 1008-block interval starting from fork height
     return (height - params.nDifficultyForkHeight) % params.DifficultyAdjustmentIntervalAtHeight(height) == 0;
