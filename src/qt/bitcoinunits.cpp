@@ -93,20 +93,23 @@ QString BitcoinUnits::format(Unit unit, const CAmount& nIn, bool fPlus, Separato
     qint64 n_abs = (n > 0 ? n : -n);
     qint64 quotient = n_abs / coin;
     QString quotient_str = QString::number(quotient);
-    if (justify) {
-        quotient_str = quotient_str.rightJustified(MAX_DIGITS_BTC - num_decimals, ' ');
-    }
 
     // Use commas as thousand separators for better readability
+    // Must be done BEFORE justification to avoid inserting commas into padding
     int q_size = quotient_str.size();
-    if (separators == SeparatorStyle::ALWAYS || (separators == SeparatorStyle::STANDARD && q_size > 4))
-        for (int i = 3; i < q_size; i += 3)
+    if (separators == SeparatorStyle::ALWAYS || (separators == SeparatorStyle::STANDARD && q_size > 4)) {
+        for (int i = 3; i < q_size; i += 4) // +4 because we insert a comma each iteration
             quotient_str.insert(q_size - i, ',');
+    }
 
     if (n < 0)
         quotient_str.insert(0, '-');
     else if (fPlus && n > 0)
         quotient_str.insert(0, '+');
+
+    if (justify) {
+        quotient_str = quotient_str.rightJustified(MAX_DIGITS_BTC - num_decimals, ' ');
+    }
 
     if (num_decimals > 0) {
         qint64 remainder = n_abs % coin;

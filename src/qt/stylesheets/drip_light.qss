@@ -566,19 +566,37 @@ QLabel#labelAddressBalance {
     color: #00a67d;
 }
 
+/* Address action buttons */
+QPushButton#btnCopyAddress, QPushButton#btnShowQR {
+    background-color: #eaeef2;
+    border: 1px solid #d0d7de;
+    color: #1f2328;
+    padding: 6px 12px;
+    min-width: 60px;
+}
+
+QPushButton#btnCopyAddress:hover, QPushButton#btnShowQR:hover {
+    background-color: #d0d7de;
+    border-color: #8b949e;
+}
+
+QPushButton#btnCopyAddress:pressed, QPushButton#btnShowQR:pressed {
+    background-color: #c9d1d9;
+}
+
 QLabel#labelBalance, QLabel#labelTotal {
     font-size: 20px;
     font-weight: 700;
     color: #00a67d;
     padding: 4px 0;
-    min-width: 220px;
+    min-width: 280px;
     font-family: "JetBrains Mono", "Fira Code", "Consolas", "SF Mono", monospace;
 }
 
 QLabel#labelUnconfirmed, QLabel#labelImmature {
     font-size: 14px;
     color: #656d76;
-    min-width: 220px;
+    min-width: 280px;
     font-family: "JetBrains Mono", "Fira Code", "Consolas", "SF Mono", monospace;
 }
 
