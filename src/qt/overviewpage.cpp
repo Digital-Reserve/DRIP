@@ -137,6 +137,13 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
 {
     ui->setupUi(this);
 
+    // Set object names for CSS styling
+    setObjectName("OverviewPage");
+    ui->frame->setObjectName("balanceCard");
+    ui->frame_2->setObjectName("transactionsCard");
+    ui->labelBalance->setObjectName("labelBalance");
+    ui->labelTotal->setObjectName("labelTotal");
+
     // use a SingleColorIcon for the "out of sync warning" icon
     QIcon icon = m_platform_style->SingleColorIcon(QStringLiteral(":/icons/warning"));
     ui->labelTransactionsStatus->setIcon(icon);

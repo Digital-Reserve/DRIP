@@ -28,6 +28,7 @@
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
 #include <qt/splashscreen.h>
+#include <qt/thememanager.h>
 #include <qt/utilitydialog.h>
 #include <qt/winshutdownmonitor.h>
 #include <uint256.h>
@@ -547,6 +548,9 @@ int GuiMain(int argc, char* argv[])
 
     // Now that the QApplication is setup and we have parsed our parameters, we can set the platform style
     app.setupPlatformStyle();
+
+    // Initialize the theme manager and apply the saved theme
+    ThemeManager::instance().initialize();
 
     /// 3. Application identification
     // must be set before OptionsModel is initialized or translations are loaded,

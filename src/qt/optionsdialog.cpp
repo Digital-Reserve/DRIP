@@ -12,6 +12,7 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+#include <qt/thememanager.h>
 
 #include <common/system.h>
 #include <interfaces/node.h>
@@ -175,6 +176,29 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
         }
     }
     ui->unit->setModel(new BitcoinUnits(this));
+
+    /* Theme selector init */
+    ui->theme->addItem(tr("Dark"), QVariant(static_cast<int>(ThemeManager::Dark)));
+    ui->theme->addItem(tr("Light"), QVariant(static_cast<int>(ThemeManager::Light)));
+    ui->theme->addItem(tr("System"), QVariant(static_cast<int>(ThemeManager::System)));
+    
+    // Set current theme
+    ThemeManager::Theme currentTheme = ThemeManager::instance().currentTheme();
+    for (int i = 0; i < ui->theme->count(); ++i) {
+        if (ui->theme->itemData(i).toInt() == static_cast<int>(currentTheme)) {
+            ui->theme->setCurrentIndex(i);
+            break;
+        }
+    }
+    
+    // Connect theme change signal
+    connect(ui->theme, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
+        QVariant data = ui->theme->itemData(index);
+        if (data.isValid()) {
+            ThemeManager::Theme theme = static_cast<ThemeManager::Theme>(data.toInt());
+            ThemeManager::instance().setTheme(theme);
+        }
+    });
 
     /* Widget-to-option mapper */
     mapper = new QDataWidgetMapper(this);

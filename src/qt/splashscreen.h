@@ -5,11 +5,13 @@
 #ifndef BITCOIN_QT_SPLASHSCREEN_H
 #define BITCOIN_QT_SPLASHSCREEN_H
 
+#include <QColor>
 #include <QWidget>
 
 #include <memory>
 
 class NetworkStyle;
+class QTimer;
 
 namespace interfaces {
 class Handler;
@@ -53,11 +55,37 @@ private:
     void unsubscribeFromCoreSignals();
     /** Initiate shutdown */
     void shutdown();
+    /** Render the splash screen content */
+    void renderSplash();
+    /** Draw the animated loading ring */
+    void drawLoadingRing(QPainter& painter, const QPointF& center, int radius);
 
+private Q_SLOTS:
+    /** Update animation frame */
+    void updateAnimation();
+
+private:
     QPixmap pixmap;
     QString curMessage;
     QColor curColor;
     int curAlignment{0};
+
+    // Theme colors
+    QColor m_bgColor;
+    QColor m_accentColor;
+    QColor m_textColor;
+    QColor m_subtextColor;
+
+    // Text content
+    QString m_titleText;
+    QString m_versionText;
+    QString m_copyrightText;
+    QString m_titleAddText;
+    const NetworkStyle* m_networkStyle{nullptr};
+
+    // Animation
+    QTimer* m_animationTimer{nullptr};
+    int m_animationAngle{0};
 
     interfaces::Node* m_node = nullptr;
     bool m_shutdown = false;

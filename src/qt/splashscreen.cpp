@@ -21,117 +21,199 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QPainter>
+#include <QPainterPath>
+#include <QLinearGradient>
 #include <QRadialGradient>
 #include <QScreen>
+#include <QTimer>
+#include <QtMath>
 
 
 SplashScreen::SplashScreen(const NetworkStyle* networkStyle)
-    : QWidget()
+    : QWidget(), m_animationAngle(0)
 {
-    // set reference point, paddings
-    int paddingRight            = 50;
-    int paddingTop              = 50;
-    int titleVersionVSpace      = 17;
-    int titleCopyrightVSpace    = 40;
+    // Set up modern dark theme colors
+    m_bgColor = QColor(13, 17, 23);           // --bg-primary
+    m_accentColor = QColor(0, 212, 170);       // --accent (teal)
+    m_textColor = QColor(230, 237, 243);       // --text-primary
+    m_subtextColor = QColor(139, 148, 158);    // --text-secondary
 
-    float fontFactor            = 1.0;
-    float devicePixelRatio      = 1.0;
-    devicePixelRatio = static_cast<QGuiApplication*>(QCoreApplication::instance())->devicePixelRatio();
+    float devicePixelRatio = static_cast<QGuiApplication*>(QCoreApplication::instance())->devicePixelRatio();
 
-    // define text to place
-    QString titleText       = CLIENT_NAME;
-    QString versionText     = QString("Version %1").arg(QString::fromStdString(FormatFullVersion()));
-    QString copyrightText   = QString::fromUtf8(CopyrightHolders(strprintf("\xc2\xA9 %u-%u ", 2009, COPYRIGHT_YEAR)).c_str());
-    const QString& titleAddText    = networkStyle->getTitleAddText();
+    // Define text to place
+    QString titleText = CLIENT_NAME;
+    QString versionText = QString("Version %1").arg(QString::fromStdString(FormatFullVersion()));
+    QString copyrightText = QString::fromUtf8(CopyrightHolders(strprintf("\xc2\xA9 %u-%u ", 2009, COPYRIGHT_YEAR)).c_str());
+    m_titleAddText = networkStyle->getTitleAddText();
 
-    QString font            = QApplication::font().toString();
+    // Store for painting
+    m_titleText = titleText;
+    m_versionText = versionText;
+    m_copyrightText = copyrightText;
+    m_networkStyle = networkStyle;
 
-    // create a bitmap according to device pixelratio
-    QSize splashSize(480*devicePixelRatio,320*devicePixelRatio);
+    // Create a bitmap according to device pixel ratio
+    QSize splashSize(520 * devicePixelRatio, 340 * devicePixelRatio);
     pixmap = QPixmap(splashSize);
-
-    // change to HiDPI if it makes sense
     pixmap.setDevicePixelRatio(devicePixelRatio);
 
-    QPainter pixPaint(&pixmap);
-    pixPaint.setPen(QColor(100,100,100));
+    // Initial render
+    renderSplash();
 
-    // draw a slightly radial gradient
-    QRadialGradient gradient(QPoint(0,0), splashSize.width()/devicePixelRatio);
-    gradient.setColorAt(0, Qt::white);
-    gradient.setColorAt(1, QColor(247,247,247));
-    QRect rGradient(QPoint(0,0), splashSize);
-    pixPaint.fillRect(rGradient, gradient);
+    // Set window properties
+    setWindowTitle(titleText + " " + m_titleAddText);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    setAttribute(Qt::WA_TranslucentBackground, false);
 
-    // draw the drip icon, expected size of PNG: 1024x1024
-    QRect rectIcon(QPoint(-150,-122), QSize(430,430));
-
-    const QSize requiredSize(1024,1024);
-    QPixmap icon(networkStyle->getAppIcon().pixmap(requiredSize));
-
-    pixPaint.drawPixmap(rectIcon, icon);
-
-    // check font size and drawing with
-    pixPaint.setFont(QFont(font, 33*fontFactor));
-    QFontMetrics fm = pixPaint.fontMetrics();
-    int titleTextWidth = GUIUtil::TextWidth(fm, titleText);
-    if (titleTextWidth > 176) {
-        fontFactor = fontFactor * 176 / titleTextWidth;
-    }
-
-    pixPaint.setFont(QFont(font, 33*fontFactor));
-    fm = pixPaint.fontMetrics();
-    titleTextWidth  = GUIUtil::TextWidth(fm, titleText);
-    pixPaint.drawText(pixmap.width()/devicePixelRatio-titleTextWidth-paddingRight,paddingTop,titleText);
-
-    pixPaint.setFont(QFont(font, 15*fontFactor));
-
-    // if the version string is too long, reduce size
-    fm = pixPaint.fontMetrics();
-    int versionTextWidth  = GUIUtil::TextWidth(fm, versionText);
-    if(versionTextWidth > titleTextWidth+paddingRight-10) {
-        pixPaint.setFont(QFont(font, 10*fontFactor));
-        titleVersionVSpace -= 5;
-    }
-    pixPaint.drawText(pixmap.width()/devicePixelRatio-titleTextWidth-paddingRight+2,paddingTop+titleVersionVSpace,versionText);
-
-    // draw copyright stuff
-    {
-        pixPaint.setFont(QFont(font, 10*fontFactor));
-        const int x = pixmap.width()/devicePixelRatio-titleTextWidth-paddingRight;
-        const int y = paddingTop+titleCopyrightVSpace;
-        QRect copyrightRect(x, y, pixmap.width() - x - paddingRight, pixmap.height() - y);
-        pixPaint.drawText(copyrightRect, Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, copyrightText);
-    }
-
-    // draw additional text if special network
-    if(!titleAddText.isEmpty()) {
-        QFont boldFont = QFont(font, 10*fontFactor);
-        boldFont.setWeight(QFont::Bold);
-        pixPaint.setFont(boldFont);
-        fm = pixPaint.fontMetrics();
-        int titleAddTextWidth  = GUIUtil::TextWidth(fm, titleAddText);
-        pixPaint.drawText(pixmap.width()/devicePixelRatio-titleAddTextWidth-10,15,titleAddText);
-    }
-
-    pixPaint.end();
-
-    // Set window title
-    setWindowTitle(titleText + " " + titleAddText);
-
-    // Resize window and move to center of desktop, disallow resizing
-    QRect r(QPoint(), QSize(pixmap.size().width()/devicePixelRatio,pixmap.size().height()/devicePixelRatio));
+    // Resize window and move to center of desktop
+    QRect r(QPoint(), QSize(pixmap.size().width() / devicePixelRatio, pixmap.size().height() / devicePixelRatio));
     resize(r.size());
     setFixedSize(r.size());
     move(QGuiApplication::primaryScreen()->geometry().center() - r.center());
 
     installEventFilter(this);
-
     GUIUtil::handleCloseWindowShortcut(this);
+
+    // Start animation timer for the loading spinner
+    m_animationTimer = new QTimer(this);
+    connect(m_animationTimer, &QTimer::timeout, this, &SplashScreen::updateAnimation);
+    m_animationTimer->start(30); // ~33 FPS for smooth animation
+}
+
+void SplashScreen::renderSplash()
+{
+    float devicePixelRatio = pixmap.devicePixelRatio();
+    int width = pixmap.width() / devicePixelRatio;
+    int height = pixmap.height() / devicePixelRatio;
+
+    QPainter pixPaint(&pixmap);
+    pixPaint.setRenderHint(QPainter::Antialiasing, true);
+    pixPaint.setRenderHint(QPainter::TextAntialiasing, true);
+    pixPaint.setRenderHint(QPainter::SmoothPixmapTransform, true);
+
+    // Draw dark background with subtle gradient
+    QLinearGradient bgGradient(0, 0, width, height);
+    bgGradient.setColorAt(0, m_bgColor);
+    bgGradient.setColorAt(1, QColor(22, 27, 34)); // --bg-secondary
+    pixPaint.fillRect(pixmap.rect(), bgGradient);
+
+    // Draw subtle accent glow in top-left corner
+    QRadialGradient glowGradient(QPointF(0, 0), 300);
+    glowGradient.setColorAt(0, QColor(0, 212, 170, 30));
+    glowGradient.setColorAt(1, QColor(0, 212, 170, 0));
+    pixPaint.fillRect(pixmap.rect(), glowGradient);
+
+    // Draw the DRIP icon centered
+    const QSize iconSize(180, 180);
+    QPixmap icon(m_networkStyle->getAppIcon().pixmap(QSize(1024, 1024)));
+    QRect iconRect(QPoint((width - iconSize.width()) / 2, 40), iconSize);
+    pixPaint.drawPixmap(iconRect, icon);
+
+    // Draw animated ring around the icon (loading indicator)
+    drawLoadingRing(pixPaint, QPointF(width / 2, 40 + iconSize.height() / 2), 105);
+
+    // Draw title text
+    QFont titleFont = QApplication::font();
+    titleFont.setPixelSize(32);
+    titleFont.setWeight(QFont::Bold);
+    titleFont.setLetterSpacing(QFont::AbsoluteSpacing, 2);
+    pixPaint.setFont(titleFont);
+    pixPaint.setPen(m_textColor);
+    
+    QFontMetrics titleFm(titleFont);
+    int titleWidth = GUIUtil::TextWidth(titleFm, m_titleText);
+    pixPaint.drawText((width - titleWidth) / 2, 250, m_titleText);
+
+    // Draw version text
+    QFont versionFont = QApplication::font();
+    versionFont.setPixelSize(13);
+    pixPaint.setFont(versionFont);
+    pixPaint.setPen(m_subtextColor);
+    
+    QFontMetrics versionFm(versionFont);
+    int versionWidth = GUIUtil::TextWidth(versionFm, m_versionText);
+    pixPaint.drawText((width - versionWidth) / 2, 272, m_versionText);
+
+    // Draw copyright text
+    QFont copyrightFont = QApplication::font();
+    copyrightFont.setPixelSize(10);
+    pixPaint.setFont(copyrightFont);
+    pixPaint.setPen(QColor(m_subtextColor.red(), m_subtextColor.green(), m_subtextColor.blue(), 150));
+    
+    QFontMetrics copyrightFm(copyrightFont);
+    int copyrightWidth = GUIUtil::TextWidth(copyrightFm, m_copyrightText);
+    pixPaint.drawText((width - copyrightWidth) / 2, height - 15, m_copyrightText);
+
+    // Draw network badge if not mainnet
+    if (!m_titleAddText.isEmpty()) {
+        QFont badgeFont = QApplication::font();
+        badgeFont.setPixelSize(11);
+        badgeFont.setWeight(QFont::Bold);
+        pixPaint.setFont(badgeFont);
+        
+        QFontMetrics badgeFm(badgeFont);
+        int badgeTextWidth = GUIUtil::TextWidth(badgeFm, m_titleAddText);
+        int badgePadding = 8;
+        int badgeHeight = 22;
+        int badgeWidth = badgeTextWidth + badgePadding * 2;
+        
+        QRect badgeRect(width - badgeWidth - 15, 15, badgeWidth, badgeHeight);
+        
+        // Draw badge background
+        pixPaint.setPen(Qt::NoPen);
+        pixPaint.setBrush(QColor(0, 212, 170, 40));
+        pixPaint.drawRoundedRect(badgeRect, 4, 4);
+        
+        // Draw badge border
+        pixPaint.setPen(QPen(m_accentColor, 1));
+        pixPaint.setBrush(Qt::NoBrush);
+        pixPaint.drawRoundedRect(badgeRect, 4, 4);
+        
+        // Draw badge text
+        pixPaint.setPen(m_accentColor);
+        pixPaint.drawText(badgeRect, Qt::AlignCenter, m_titleAddText);
+    }
+
+    pixPaint.end();
+}
+
+void SplashScreen::drawLoadingRing(QPainter& painter, const QPointF& center, int radius)
+{
+    painter.save();
+    
+    // Draw background ring
+    QPen bgPen(QColor(48, 54, 61), 3);  // --border color
+    bgPen.setCapStyle(Qt::RoundCap);
+    painter.setPen(bgPen);
+    painter.setBrush(Qt::NoBrush);
+    painter.drawEllipse(center, radius, radius);
+    
+    // Draw animated arc
+    QPen arcPen(m_accentColor, 3);
+    arcPen.setCapStyle(Qt::RoundCap);
+    painter.setPen(arcPen);
+    
+    int startAngle = m_animationAngle * 16;  // Qt uses 1/16th of a degree
+    int spanAngle = 90 * 16;  // 90 degree arc
+    
+    QRectF arcRect(center.x() - radius, center.y() - radius, radius * 2, radius * 2);
+    painter.drawArc(arcRect, startAngle, spanAngle);
+    
+    painter.restore();
+}
+
+void SplashScreen::updateAnimation()
+{
+    m_animationAngle = (m_animationAngle + 5) % 360;
+    renderSplash();
+    update();
 }
 
 SplashScreen::~SplashScreen()
 {
+    if (m_animationTimer) {
+        m_animationTimer->stop();
+    }
     if (m_node) unsubscribeFromCoreSignals();
 }
 
@@ -165,7 +247,7 @@ static void InitMessage(SplashScreen *splash, const std::string &message)
         Qt::QueuedConnection,
         Q_ARG(QString, QString::fromStdString(message)),
         Q_ARG(int, Qt::AlignBottom|Qt::AlignHCenter),
-        Q_ARG(QColor, QColor(55,55,55)));
+        Q_ARG(QColor, QColor(139, 148, 158)));  // Use subtle text color
     assert(invoked);
 }
 
@@ -219,10 +301,20 @@ void SplashScreen::showMessage(const QString &message, int alignment, const QCol
 void SplashScreen::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setRenderHint(QPainter::TextAntialiasing, true);
     painter.drawPixmap(0, 0, pixmap);
-    QRect r = rect().adjusted(5, 5, -5, -5);
-    painter.setPen(curColor);
-    painter.drawText(r, curAlignment, curMessage);
+    
+    // Draw status message with modern styling
+    if (!curMessage.isEmpty()) {
+        QFont msgFont = QApplication::font();
+        msgFont.setPixelSize(11);
+        painter.setFont(msgFont);
+        painter.setPen(curColor);
+        
+        QRect r = rect().adjusted(20, 20, -20, -35);
+        painter.drawText(r, curAlignment, curMessage);
+    }
 }
 
 void SplashScreen::closeEvent(QCloseEvent *event)
