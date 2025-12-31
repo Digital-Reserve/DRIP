@@ -141,7 +141,9 @@ std::set<std::string> ArgsManager::GetUnsuitableSectionOnlyArgs() const
     if (m_network.empty()) return std::set<std::string> {};
 
     // if it's okay to use the default section for this network, don't worry
-    if (m_network == ChainTypeToString(ChainType::MAIN)) return std::set<std::string> {};
+    // DRIP is our main network, so treat it like MAIN (no section required)
+    if (m_network == ChainTypeToString(ChainType::MAIN) || 
+        m_network == ChainTypeToString(ChainType::DRIP)) return std::set<std::string> {};
 
     for (const auto& arg : m_network_only_args) {
         if (OnlyHasDefaultSectionSetting(m_settings, m_network, SettingName(arg))) {
@@ -836,7 +838,10 @@ std::variant<ChainType, std::string> ArgsManager::GetChainArg() const
 
 bool ArgsManager::UseDefaultSection(const std::string& arg) const
 {
-    return m_network == ChainTypeToString(ChainType::MAIN) || !m_network_only_args.contains(arg);
+    // DRIP is our main network, treat it like MAIN
+    return m_network == ChainTypeToString(ChainType::MAIN) || 
+           m_network == ChainTypeToString(ChainType::DRIP) || 
+           !m_network_only_args.contains(arg);
 }
 
 common::SettingsValue ArgsManager::GetSetting(const std::string& arg) const
