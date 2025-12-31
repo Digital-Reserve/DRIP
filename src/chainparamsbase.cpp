@@ -52,7 +52,7 @@ std::unique_ptr<CBaseChainParams> CreateBaseChainParams(const ChainType chain)
     case ChainType::REGTEST:
         return std::make_unique<CBaseChainParams>("regtest", 18443);
     case ChainType::DRIP:
-        return std::make_unique<CBaseChainParams>("drip", 58332);
+        return std::make_unique<CBaseChainParams>("", 58332);  // No subdirectory - data goes directly in base data dir
     }
     assert(false);
 }

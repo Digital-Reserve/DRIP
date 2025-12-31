@@ -24,7 +24,9 @@ ThemeManager& ThemeManager::instance()
 
 void ThemeManager::initialize()
 {
-    QSettings settings;
+    // Use a fixed settings location independent of network-specific app name
+    // This ensures theme persists across app restarts
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "DRIP", "DRIP-Qt");
     QString savedTheme = settings.value("theme", "dark").toString();
     m_currentTheme = stringToTheme(savedTheme);
     applyStylesheet(m_currentTheme);
@@ -79,9 +81,10 @@ void ThemeManager::setTheme(Theme theme)
     if (m_currentTheme != theme) {
         m_currentTheme = theme;
         
-        // Save preference
-        QSettings settings;
+        // Save preference using fixed settings location
+        QSettings settings(QSettings::IniFormat, QSettings::UserScope, "DRIP", "DRIP-Qt");
         settings.setValue("theme", themeToString(theme));
+        settings.sync();  // Ensure it's written to disk immediately
         
         applyStylesheet(theme);
         Q_EMIT themeChanged(theme);

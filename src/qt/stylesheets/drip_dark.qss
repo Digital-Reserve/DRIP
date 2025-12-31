@@ -407,6 +407,7 @@ QStatusBar {
     background-color: #161b22;
     border-top: 1px solid #30363d;
     padding: 4px 12px;
+    color: #e6edf3;
 }
 
 QStatusBar::item {
@@ -414,8 +415,20 @@ QStatusBar::item {
 }
 
 QStatusBar QLabel {
-    color: #8b949e;
+    color: #c9d1d9;
     padding: 4px 8px;
+}
+
+QStatusBar QPushButton, QStatusBar QToolButton {
+    background-color: transparent;
+    border: none;
+    color: #c9d1d9;
+    padding: 4px 8px;
+}
+
+QStatusBar QPushButton:hover, QStatusBar QToolButton:hover {
+    background-color: #30363d;
+    color: #ffffff;
 }
 
 /* === PROGRESS BAR === */
@@ -423,8 +436,10 @@ QProgressBar {
     background-color: #21262d;
     border: none;
     border-radius: 6px;
-    height: 8px;
+    height: 20px;
     text-align: center;
+    color: #e6edf3;
+    font-size: 11px;
 }
 
 QProgressBar::chunk {
