@@ -760,7 +760,7 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.emplace_back("seed1.altcoinspool.cc.");
+        // No DNS seeds - using HTTP seeds for peer discovery
         
         // HTTP seeds for peer discovery (served from main repo via GitHub Pages)
         vHttpSeeds.clear();

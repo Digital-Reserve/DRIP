@@ -1,10 +1,14 @@
 {
   "version": 1,
-  "updated": "2025-12-27",
+  "updated": "2025-12-31",
   "nodes": [
     {
       "address": "xc4dnfjzk7kyyda7jms5xngaldzvysi3lxkfpknhc3rb3ugyj7v2ahid.onion:58333",
       "type": "onion"
+    },
+    {
+      "address": "seed1.altcoinspool.cc:58333",
+      "type": "ipv4"
     }
   ]
 }
