@@ -24,10 +24,10 @@
     <number>4</number>
    </property>
    <property name="horizontalSpacing">
-    <number>12</number>
+    <number>16</number>
    </property>
    <property name="verticalSpacing">
-    <number>8</number>
+    <number>12</number>
    </property>
    <item row="0" column="0">
     <widget class="QLabel" name="payToLabel">
@@ -170,7 +170,7 @@
      <item>
       <widget class="QCheckBox" name="checkboxSubtractFeeFromAmount">
        <property name="toolTip">
-        <string>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</string>
+        <string>The fee will be deducted from the amount being sent. The recipient will receive less DRIP than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</string>
        </property>
        <property name="text">
         <string>S&amp;ubtract fee from amount</string>

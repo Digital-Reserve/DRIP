@@ -108,11 +108,20 @@
           </item>
           <item>
            <layout class="QGridLayout" name="gridLayout">
-            <property name="spacing">
+            <property name="horizontalSpacing">
+             <number>16</number>
+            </property>
+            <property name="verticalSpacing">
              <number>12</number>
             </property>
             <item row="1" column="1">
              <widget class="QLabel" name="labelUnconfirmed">
+              <property name="minimumSize">
+               <size>
+                <width>220</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="cursor">
                <cursorShape>IBeamCursor</cursorShape>
               </property>
@@ -146,6 +155,12 @@
             </item>
             <item row="2" column="1">
              <widget class="QLabel" name="labelImmature">
+              <property name="minimumSize">
+               <size>
+                <width>220</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="cursor">
                <cursorShape>IBeamCursor</cursorShape>
               </property>
@@ -185,6 +200,12 @@
             </item>
             <item row="4" column="1">
              <widget class="QLabel" name="labelTotal">
+              <property name="minimumSize">
+               <size>
+                <width>220</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="cursor">
                <cursorShape>IBeamCursor</cursorShape>
               </property>
@@ -192,7 +213,7 @@
                <string>Your current total balance</string>
               </property>
               <property name="text">
-               <string notr="true">21 000 000.00000000 DRIP</string>
+               <string notr="true">0.00000000 DRIP</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -211,6 +232,12 @@
             </item>
             <item row="0" column="1">
              <widget class="QLabel" name="labelBalance">
+              <property name="minimumSize">
+               <size>
+                <width>220</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="cursor">
                <cursorShape>IBeamCursor</cursorShape>
               </property>
@@ -218,7 +245,7 @@
                <string>Your current spendable balance</string>
               </property>
               <property name="text">
-               <string notr="true">21 000 000.00000000 DRIP</string>
+               <string notr="true">0.00000000 DRIP</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -241,17 +268,159 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QFrame" name="addressFrame">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
          </property>
-        </spacer>
+         <layout class="QVBoxLayout" name="addressFrameLayout">
+          <item>
+           <layout class="QHBoxLayout" name="addressHeaderLayout">
+            <item>
+             <widget class="QLabel" name="labelAddressesTitle">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Wallet Addresses</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QListWidget" name="listAddresses">
+            <property name="styleSheet">
+             <string notr="true">QListWidget { background: transparent; }</string>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="verticalScrollBarPolicy">
+             <enum>Qt::ScrollBarAsNeeded</enum>
+            </property>
+            <property name="horizontalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOff</enum>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::SingleSelection</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="addressDetailFrame">
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <layout class="QVBoxLayout" name="addressDetailLayout">
+             <property name="spacing">
+              <number>8</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>8</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="Line" name="addressDetailLine">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="addressDetailBalanceLayout">
+               <item>
+                <widget class="QLabel" name="labelAddressBalanceText">
+                 <property name="text">
+                  <string>Address Balance:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="labelAddressBalance">
+                 <property name="text">
+                  <string notr="true">0.00000000 DRIP</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="addressButtonsLayout">
+               <item>
+                <widget class="QPushButton" name="btnCopyAddress">
+                 <property name="text">
+                  <string>Copy</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../bitcoin.qrc">
+                   <normaloff>:/icons/editcopy</normaloff>:/icons/editcopy</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btnShowQR">
+                 <property name="text">
+                  <string>QR</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../bitcoin.qrc">
+                   <normaloff>:/icons/eye</normaloff>:/icons/eye</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="addressButtonsSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </item>
@@ -380,6 +549,8 @@
    <header>qt/transactionoverviewwidget.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../bitcoin.qrc"/>
+ </resources>
  <connections/>
 </ui>

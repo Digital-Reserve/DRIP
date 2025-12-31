@@ -16,9 +16,13 @@
 #include <qt/transactiontablemodel.h>
 #include <qt/walletmodel.h>
 
+#include <key_io.h>
+
 #include <QAbstractItemDelegate>
 #include <QApplication>
+#include <QClipboard>
 #include <QDateTime>
+#include <QListWidgetItem>
 #include <QPainter>
 #include <QStatusTipEvent>
 
@@ -161,6 +165,13 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     showOutOfSyncWarning(true);
     connect(ui->labelWalletStatus, &QPushButton::clicked, this, &OverviewPage::outOfSyncWarningClicked);
     connect(ui->labelTransactionsStatus, &QPushButton::clicked, this, &OverviewPage::outOfSyncWarningClicked);
+
+    // Address list setup
+    ui->addressFrame->setObjectName("addressCard");
+    ui->addressDetailFrame->setVisible(false);
+    connect(ui->listAddresses, &QListWidget::itemClicked, this, &OverviewPage::onAddressClicked);
+    connect(ui->btnCopyAddress, &QPushButton::clicked, this, &OverviewPage::onCopyAddressClicked);
+    connect(ui->btnShowQR, &QPushButton::clicked, this, &OverviewPage::onShowQRClicked);
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
@@ -194,10 +205,27 @@ OverviewPage::~OverviewPage()
 void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 {
     BitcoinUnit unit = walletModel->getOptionsModel()->getDisplayUnit();
-    ui->labelBalance->setText(BitcoinUnits::formatWithPrivacy(unit, balances.balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
-    ui->labelUnconfirmed->setText(BitcoinUnits::formatWithPrivacy(unit, balances.unconfirmed_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
-    ui->labelImmature->setText(BitcoinUnits::formatWithPrivacy(unit, balances.immature_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
-    ui->labelTotal->setText(BitcoinUnits::formatWithPrivacy(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+    CAmount total = balances.balance + balances.unconfirmed_balance + balances.immature_balance;
+
+    // Format balance strings with comma separators
+    QString balanceStr = BitcoinUnits::formatWithPrivacy(unit, balances.balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy);
+    QString unconfirmedStr = BitcoinUnits::formatWithPrivacy(unit, balances.unconfirmed_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy);
+    QString immatureStr = BitcoinUnits::formatWithPrivacy(unit, balances.immature_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy);
+    QString totalStr = BitcoinUnits::formatWithPrivacy(unit, total, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy);
+
+    // Set text and tooltips (tooltip shows full value if truncated)
+    ui->labelBalance->setText(balanceStr);
+    ui->labelBalance->setToolTip(tr("Available: %1").arg(balanceStr));
+
+    ui->labelUnconfirmed->setText(unconfirmedStr);
+    ui->labelUnconfirmed->setToolTip(tr("Pending: %1").arg(unconfirmedStr));
+
+    ui->labelImmature->setText(immatureStr);
+    ui->labelImmature->setToolTip(tr("Immature: %1").arg(immatureStr));
+
+    ui->labelTotal->setText(totalStr);
+    ui->labelTotal->setToolTip(tr("Total: %1").arg(totalStr));
+
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
     bool showImmature = balances.immature_balance != 0;
@@ -244,6 +272,10 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(model, &WalletModel::balanceChanged, this, &OverviewPage::setBalance);
 
         connect(model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &OverviewPage::updateDisplayUnit);
+
+        // Update address list when balance changes
+        connect(model, &WalletModel::balanceChanged, this, &OverviewPage::updateAddressList);
+        updateAddressList();
     }
 
     // update the display unit, to not use the default ("DRIP")
@@ -304,4 +336,97 @@ void OverviewPage::setMonospacedFont(const QFont& f)
     ui->labelUnconfirmed->setFont(f);
     ui->labelImmature->setFont(f);
     ui->labelTotal->setFont(f);
+}
+
+void OverviewPage::updateAddressList()
+{
+    if (!walletModel) return;
+
+    ui->listAddresses->clear();
+    ui->addressDetailFrame->setVisible(false);
+    m_selected_address.clear();
+
+    // Get coins grouped by address
+    interfaces::Wallet::CoinsList coins = walletModel->wallet().listCoins();
+
+    BitcoinUnit unit = walletModel->getOptionsModel()->getDisplayUnit();
+
+    // Calculate balance for each address
+    for (const auto& [dest, outputs] : coins) {
+        CAmount balance = 0;
+        for (const auto& [outpoint, txout] : outputs) {
+            if (!txout.is_spent) {
+                balance += txout.txout.nValue;
+            }
+        }
+
+        QString address = QString::fromStdString(EncodeDestination(dest));
+        QString balanceStr = BitcoinUnits::formatWithUnit(unit, balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
+
+        // Create list item with address and balance
+        QListWidgetItem* item = new QListWidgetItem();
+        QString displayText = address.left(12) + "..." + address.right(8) + "  " + balanceStr;
+        item->setText(displayText);
+        item->setData(Qt::UserRole, address);
+        item->setData(Qt::UserRole + 1, static_cast<qlonglong>(balance));
+        item->setToolTip(address);
+
+        ui->listAddresses->addItem(item);
+    }
+
+    // Also add addresses with zero balance from address book
+    for (const auto& addr : walletModel->wallet().getAddresses()) {
+        if (!addr.is_mine) continue;
+
+        QString address = QString::fromStdString(EncodeDestination(addr.dest));
+
+        // Check if we already added this address
+        bool found = false;
+        for (int i = 0; i < ui->listAddresses->count(); ++i) {
+            if (ui->listAddresses->item(i)->data(Qt::UserRole).toString() == address) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            QListWidgetItem* item = new QListWidgetItem();
+            QString balanceStr = BitcoinUnits::formatWithUnit(unit, 0, false, BitcoinUnits::SeparatorStyle::ALWAYS);
+            QString displayText = address.left(12) + "..." + address.right(8) + "  " + balanceStr;
+            item->setText(displayText);
+            item->setData(Qt::UserRole, address);
+            item->setData(Qt::UserRole + 1, (qlonglong)0);
+            item->setToolTip(address);
+            ui->listAddresses->addItem(item);
+        }
+    }
+}
+
+void OverviewPage::onAddressClicked(QListWidgetItem* item)
+{
+    if (!item || !walletModel) return;
+
+    m_selected_address = item->data(Qt::UserRole).toString();
+    CAmount balance = item->data(Qt::UserRole + 1).toLongLong();
+
+    BitcoinUnit unit = walletModel->getOptionsModel()->getDisplayUnit();
+    QString balanceStr = BitcoinUnits::formatWithUnit(unit, balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
+
+    ui->labelAddressBalance->setText(balanceStr);
+    ui->addressDetailFrame->setVisible(true);
+}
+
+void OverviewPage::onCopyAddressClicked()
+{
+    if (m_selected_address.isEmpty()) return;
+
+    QApplication::clipboard()->setText(m_selected_address);
+}
+
+void OverviewPage::onShowQRClicked()
+{
+    if (m_selected_address.isEmpty() || !walletModel) return;
+
+    // Use the wallet model's displayAddress to show QR
+    walletModel->displayAddress(m_selected_address.toStdString());
 }

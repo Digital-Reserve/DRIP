@@ -15,6 +15,7 @@ class TransactionFilterProxy;
 class TxViewDelegate;
 class PlatformStyle;
 class WalletModel;
+class QListWidgetItem;
 
 namespace Ui {
     class OverviewPage;
@@ -59,12 +60,21 @@ private:
     TxViewDelegate *txdelegate;
     std::unique_ptr<TransactionFilterProxy> filter;
 
+    // Address list
+    QString m_selected_address;
+
 private Q_SLOTS:
     void LimitTransactionRows();
     void updateDisplayUnit();
     void handleTransactionClicked(const QModelIndex &index);
     void updateAlerts(const QString &warnings);
     void setMonospacedFont(const QFont&);
+
+    // Address list slots
+    void updateAddressList();
+    void onAddressClicked(QListWidgetItem* item);
+    void onCopyAddressClicked();
+    void onShowQRClicked();
 };
 
 #endif // BITCOIN_QT_OVERVIEWPAGE_H

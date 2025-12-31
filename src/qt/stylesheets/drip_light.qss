@@ -90,6 +90,11 @@ QToolBar {
     spacing: 8px;
 }
 
+/* Fix spacer widget in toolbar having wrong background */
+QToolBar > QWidget {
+    background-color: transparent;
+}
+
 QToolBar::separator {
     width: 1px;
     background-color: #d0d7de;
@@ -376,9 +381,10 @@ QLabel#label_5, QLabel#label_4 {
 }
 
 QLabel#labelBalance, QLabel#labelTotal {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     color: #00a67d;
+    min-width: 200px;
 }
 
 /* === STATUS BAR === */
@@ -517,22 +523,63 @@ QWidget#OverviewPage {
     background-color: #ffffff;
 }
 
-QFrame#balanceCard, QFrame#transactionsCard {
+QFrame#balanceCard, QFrame#transactionsCard, QFrame#addressCard {
     background-color: #f6f8fa;
     border: 1px solid #d0d7de;
     border-radius: 12px;
     padding: 16px;
 }
 
-QFrame#balanceCard:hover, QFrame#transactionsCard:hover {
+QFrame#balanceCard:hover, QFrame#transactionsCard:hover, QFrame#addressCard:hover {
     border-color: #8b949e;
 }
 
+/* Address list styling */
+QListWidget#listAddresses {
+    background-color: transparent;
+    border: none;
+}
+
+QListWidget#listAddresses::item {
+    background-color: transparent;
+    border-bottom: 1px solid #eaeef2;
+    padding: 10px 4px;
+    color: #656d76;
+    font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+    font-size: 12px;
+}
+
+QListWidget#listAddresses::item:selected {
+    background-color: rgba(0, 166, 125, 0.12);
+    color: #00a67d;
+    border-left: 3px solid #00a67d;
+}
+
+QListWidget#listAddresses::item:hover {
+    background-color: #eaeef2;
+    color: #1f2328;
+}
+
+QLabel#labelAddressBalance {
+    font-size: 16px;
+    font-weight: 600;
+    color: #00a67d;
+}
+
 QLabel#labelBalance, QLabel#labelTotal {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
     color: #00a67d;
     padding: 4px 0;
+    min-width: 220px;
+    font-family: "JetBrains Mono", "Fira Code", "Consolas", "SF Mono", monospace;
+}
+
+QLabel#labelUnconfirmed, QLabel#labelImmature {
+    font-size: 14px;
+    color: #656d76;
+    min-width: 220px;
+    font-family: "JetBrains Mono", "Fira Code", "Consolas", "SF Mono", monospace;
 }
 
 /* Transaction list styling */

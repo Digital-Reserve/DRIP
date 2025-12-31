@@ -33,8 +33,8 @@ QString BitcoinUnits::longName(Unit unit)
     switch (unit) {
     case Unit::DRIP: return QString("DRIP");
     case Unit::mDRIP: return QString("mDRIP");
-    case Unit::uDRIP: return QString::fromUtf8("µDRIP (bits)");
-    case Unit::SAT: return QString("Drip (drip)");
+    case Unit::uDRIP: return QString::fromUtf8("\xCE\xBC" "DRIP"); // μDRIP (Greek mu)
+    case Unit::SAT: return QString("drip");
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -44,7 +44,7 @@ QString BitcoinUnits::shortName(Unit unit)
     switch (unit) {
     case Unit::DRIP: return longName(unit);
     case Unit::mDRIP: return longName(unit);
-    case Unit::uDRIP: return QString("bits");
+    case Unit::uDRIP: return QString::fromUtf8("\xCE\xBC" "DRIP"); // μDRIP
     case Unit::SAT: return QString("drip");
     } // no default case, so the compiler can warn about missing cases
     assert(false);
@@ -53,10 +53,10 @@ QString BitcoinUnits::shortName(Unit unit)
 QString BitcoinUnits::description(Unit unit)
 {
     switch (unit) {
-    case Unit::DRIP: return QString("DRIPs");
-    case Unit::mDRIP: return QString("Milli-DRIPs (1 / 1" THIN_SP_UTF8 "000)");
-    case Unit::uDRIP: return QString("Micro-DRIPs (bits) (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
-    case Unit::SAT: return QString("Drip (drip) (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+    case Unit::DRIP: return QString("DRIP - Standard unit");
+    case Unit::mDRIP: return QString("mDRIP - Milli-DRIP (1/1,000 DRIP)");
+    case Unit::uDRIP: return QString::fromUtf8("\xCE\xBC" "DRIP - Micro-DRIP (1/1,000,000 DRIP)");
+    case Unit::SAT: return QString("drip - Smallest unit (1/100,000,000 DRIP)");
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -97,13 +97,11 @@ QString BitcoinUnits::format(Unit unit, const CAmount& nIn, bool fPlus, Separato
         quotient_str = quotient_str.rightJustified(MAX_DIGITS_BTC - num_decimals, ' ');
     }
 
-    // Use SI-style thin space separators as these are locale independent and can't be
-    // confused with the decimal marker.
-    QChar thin_sp(THIN_SP_CP);
+    // Use commas as thousand separators for better readability
     int q_size = quotient_str.size();
     if (separators == SeparatorStyle::ALWAYS || (separators == SeparatorStyle::STANDARD && q_size > 4))
         for (int i = 3; i < q_size; i += 3)
-            quotient_str.insert(q_size - i, thin_sp);
+            quotient_str.insert(q_size - i, ',');
 
     if (n < 0)
         quotient_str.insert(0, '-');
@@ -136,7 +134,7 @@ QString BitcoinUnits::formatWithUnit(Unit unit, const CAmount& amount, bool plus
 QString BitcoinUnits::formatHtmlWithUnit(Unit unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
 {
     QString str(formatWithUnit(unit, amount, plussign, separators));
-    str.replace(QChar(THIN_SP_CP), QString(THIN_SP_HTML));
+    // Commas don't need special HTML handling, just wrap to prevent breaking
     return QString("<span style='white-space: nowrap;'>%1</span>").arg(str);
 }
 
