@@ -1647,7 +1647,7 @@ UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle* pl
     }
     setMinimumSize(max_width, 0);
     setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    setStyleSheet(QString("QLabel { color : %1 }").arg(m_platform_style->SingleColor().name()));
+    // Color is set by QSS stylesheet (QStatusBar QLabel)
 }
 
 /** So that it responds to button clicks */
@@ -1658,13 +1658,7 @@ void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent *event)
 
 void UnitDisplayStatusBarControl::changeEvent(QEvent* e)
 {
-    if (e->type() == QEvent::PaletteChange) {
-        QString style = QString("QLabel { color : %1 }").arg(m_platform_style->SingleColor().name());
-        if (style != styleSheet()) {
-            setStyleSheet(style);
-        }
-    }
-
+    // Color is handled by QSS stylesheet
     QLabel::changeEvent(e);
 }
 
