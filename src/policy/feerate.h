@@ -16,7 +16,7 @@
 #include <type_traits>
 
 const std::string CURRENCY_UNIT = "DRIP"; // One formatted unit
-const std::string CURRENCY_ATOM = "drip"; // One indivisible minimum value unit
+const std::string CURRENCY_ATOM = "drop"; // One indivisible minimum value unit
 
 /* Used to determine type of fee estimation requested */
 enum class FeeEstimateMode {

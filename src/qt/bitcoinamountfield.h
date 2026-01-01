@@ -35,13 +35,13 @@ public:
     /** If allow empty is set to false the field will be set to the minimum allowed value if left empty. **/
     void SetAllowEmpty(bool allow);
 
-    /** Set the minimum value in drips **/
+    /** Set the minimum value in drops **/
     void SetMinValue(const CAmount& value);
 
-    /** Set the maximum value in drips **/
+    /** Set the maximum value in drops **/
     void SetMaxValue(const CAmount& value);
 
-    /** Set single step in drips **/
+    /** Set single step in drops **/
     void setSingleStep(const CAmount& step);
 
     /** Make read-only **/

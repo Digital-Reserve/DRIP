@@ -869,13 +869,19 @@ void SendCoinsDialog::updateSmartFeeLabel()
     ui->labelSmartFee->setText(tr("%1/kvB").arg(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), feeRate.GetFeePerK())));
 
     if (reason == FeeReason::FALLBACK) {
-        ui->labelSmartFee2->show(); // (Smart fee not initialized yet. This usually takes a few blocks...)
-        ui->labelFeeEstimation->setText("");
-        ui->fallbackFeeWarningLabel->setVisible(true);
-        int lightness = ui->fallbackFeeWarningLabel->palette().color(QPalette::WindowText).lightness();
-        QColor warning_colour(255 - (lightness / 5), 176 - (lightness / 3), 48 - (lightness / 14));
-        ui->fallbackFeeWarningLabel->setStyleSheet("QLabel { color: " + warning_colour.name() + "; }");
-        ui->fallbackFeeWarningLabel->setIndent(GUIUtil::TextWidth(QFontMetrics(ui->fallbackFeeWarningLabel->font()), "x"));
+        // Using fallback/minimum fee - show helpful message instead of warning
+        ui->labelSmartFee2->show();
+        ui->labelFeeEstimation->setText(tr("Using minimum fee (fee estimation needs more blocks)"));
+        // Only show warning if fallback fee is actually 0 (disabled)
+        if (feeRate.GetFeePerK() == 0) {
+            ui->fallbackFeeWarningLabel->setVisible(true);
+            int lightness = ui->fallbackFeeWarningLabel->palette().color(QPalette::WindowText).lightness();
+            QColor warning_colour(255 - (lightness / 5), 176 - (lightness / 3), 48 - (lightness / 14));
+            ui->fallbackFeeWarningLabel->setStyleSheet("QLabel { color: " + warning_colour.name() + "; }");
+            ui->fallbackFeeWarningLabel->setIndent(GUIUtil::TextWidth(QFontMetrics(ui->fallbackFeeWarningLabel->font()), "x"));
+        } else {
+            ui->fallbackFeeWarningLabel->setVisible(false);
+        }
     }
     else
     {

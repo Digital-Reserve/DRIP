@@ -739,7 +739,7 @@
           <item>
            <widget class="QLabel" name="fallbackFeeWarningLabel">
             <property name="toolTip">
-             <string>Using the fallbackfee can result in sending a transaction that will take several hours or days (or never) to confirm. Consider choosing your fee manually or wait until you have validated the complete chain.</string>
+             <string>Fee estimation requires transaction history data. You can set a custom fee or wait until the wallet has synced more blocks.</string>
             </property>
             <property name="font">
             <font>
@@ -748,7 +748,7 @@
             </font>
             </property>
             <property name="text">
-             <string>Warning: Fee estimation is currently not possible.</string>
+             <string>Note: Fee estimation unavailable, using minimum fee.</string>
             </property>
             <property name="wordWrap">
              <bool>false</bool>
@@ -827,7 +827,7 @@
                    <property name="toolTip">
                     <string>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
 
-Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 drips per kvB" for a transaction size of 500 virtual bytes (half of 1 kvB) would ultimately yield a fee of only 50 drips.</string>
+Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 drops per kvB" for a transaction size of 500 virtual bytes (half of 1 kvB) would ultimately yield a fee of only 50 drops.</string>
                    </property>
                    <property name="text">
                     <string>per kilobyte</string>
@@ -968,7 +968,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 drips
                  <item>
                   <widget class="QLabel" name="labelSmartFee2">
                    <property name="text">
-                    <string>(Smart fee not initialized yet. This usually takes a few blocks…)</string>
+                    <string>(Using minimum fee rate)</string>
                    </property>
                   </widget>
                  </item>

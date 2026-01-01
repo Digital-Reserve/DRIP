@@ -34,7 +34,7 @@ QString BitcoinUnits::longName(Unit unit)
     case Unit::DRIP: return QString("DRIP");
     case Unit::mDRIP: return QString("mDRIP");
     case Unit::uDRIP: return QString::fromUtf8("\xCE\xBC" "DRIP"); // μDRIP (Greek mu)
-    case Unit::SAT: return QString("drip");
+    case Unit::SAT: return QString("drop");
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -45,7 +45,7 @@ QString BitcoinUnits::shortName(Unit unit)
     case Unit::DRIP: return longName(unit);
     case Unit::mDRIP: return longName(unit);
     case Unit::uDRIP: return QString::fromUtf8("\xCE\xBC" "DRIP"); // μDRIP
-    case Unit::SAT: return QString("drip");
+    case Unit::SAT: return QString("drop");
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -56,7 +56,7 @@ QString BitcoinUnits::description(Unit unit)
     case Unit::DRIP: return QString("DRIP - Standard unit");
     case Unit::mDRIP: return QString("mDRIP - Milli-DRIP (1/1,000 DRIP)");
     case Unit::uDRIP: return QString::fromUtf8("\xCE\xBC" "DRIP - Micro-DRIP (1/1,000,000 DRIP)");
-    case Unit::SAT: return QString("drip - Smallest unit (1/100,000,000 DRIP)");
+    case Unit::SAT: return QString("drop - Smallest unit (1/100,000,000 DRIP)");
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }

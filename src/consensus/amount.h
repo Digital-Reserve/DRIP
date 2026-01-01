@@ -8,13 +8,13 @@
 
 #include <cstdint>
 
-/** Amount in drips (Can be negative) */
+/** Amount in drops (Can be negative) */
 typedef int64_t CAmount;
 
-/** The amount of drips in one DRIP. */
+/** The amount of drops in one DRIP. */
 static constexpr CAmount COIN = 100000000;
 
-/** No amount larger than this (in drip) is valid.
+/** No amount larger than this (in drops) is valid.
  *
  * Note that this constant is *not* the total money supply, which in DRIP
  * currently happens to be less than 21,000,000 DRIP for various reasons, but
