@@ -81,3 +81,15 @@ target/
 /ANONYMOUS_RELEASE/
 # Downloaded Tor bundle (use setup script to install)
 tor/
+
+# Environment files with secrets - NEVER commit these!
+.env
+.env.local
+.env.*.local
+*.env
+contrib/discord/.env
+
+# Python virtual environments
+venv/
+.venv/
+env/
