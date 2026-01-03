@@ -1,135 +1,152 @@
-# Windows Build Guide
+# Windows Build Guide (MSVC)
 
-This guide describes how to build DRIP on Windows using Visual Studio.
+This guide describes how to build DRIP on Windows using Visual Studio and vcpkg.
 
-For cross-compiling options, please see [`build-windows.md`](./build-windows.md).
+For cross-compiling from Linux/WSL, see [`build-windows.md`](./build-windows.md).
+
+---
 
 ## Quick Start
 
-If you just want to build DRIP quickly, run these commands in **Developer PowerShell** or **Developer Command Prompt**:
+Already have Visual Studio and vcpkg installed? Run these commands from the DRIP source directory.
 
-```powershell
-# One-time setup: Install vcpkg
-git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
-C:\vcpkg\bootstrap-vcpkg.bat
+**CMD (Command Prompt):**
+```cmd
+cd C:\path\to\DRIP
 
-# Clone and build DRIP
-git clone https://github.com/AnchorCoinDevelopment/DRIP.git C:\drip
-cd C:\drip
 cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF
 cmake --build build --config Release
 ```
+
+**PowerShell:**
+```powershell
+cd C:\path\to\DRIP
+
+cmake -B build -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF
+cmake --build build --config Release
+```
+
+> **Important:** Replace `C:/vcpkg` with your actual vcpkg install path if different.
 
 Binaries will be in `build\bin\Release\` → `dripd.exe`, `drip-cli.exe`, etc.
 
 ---
 
-## Detailed Instructions
+## Full Setup Guide
 
-### 1. Prerequisites
+### Step 1: Install Prerequisites
 
-| Software | Download |
-|----------|----------|
-| Visual Studio 2019/2022/2024 | [visualstudio.microsoft.com](https://visualstudio.microsoft.com/) |
-| Git for Windows | [git-scm.com](https://git-scm.com/downloads/win) |
-| CMake 3.22+ | [cmake.org](https://cmake.org/download/) |
+| Software | Download | Notes |
+|----------|----------|-------|
+| Visual Studio 2022 | [visualstudio.microsoft.com](https://visualstudio.microsoft.com/) | Select **"Desktop development with C++"** workload |
+| Git for Windows | [git-scm.com](https://git-scm.com/downloads/win) | Use default settings |
+| CMake 3.22+ | [cmake.org](https://cmake.org/download/) | Check "Add CMake to PATH" during install |
 
-**Visual Studio Requirements:**
-- Install the **"Desktop development with C++"** workload
-- Any recent version works (2019, 2022, or later) - CMake auto-detects
+> **Note:** Visual Studio 2019 or later works fine. The Community edition is free.
 
-### 2. Install vcpkg Package Manager
+### Step 2: Install vcpkg
 
-vcpkg handles all C++ dependencies automatically. Install it once:
-
-**PowerShell:**
-```powershell
-git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
-C:\vcpkg\bootstrap-vcpkg.bat
-```
-
-**CMD:**
-```cmd
-git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
-C:\vcpkg\bootstrap-vcpkg.bat
-```
-
-### 3. Clone DRIP Repository
+Open **PowerShell** and run:
 
 ```powershell
-git clone https://github.com/AnchorCoinDevelopment/DRIP.git C:\drip
-cd C:\drip
+# Choose where to install vcpkg (adjust path as needed)
+cd C:\
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+
+# Set environment variable so CMake can find it
+[Environment]::SetEnvironmentVariable("VCPKG_ROOT", "C:\vcpkg", "User")
+$env:VCPKG_ROOT = "C:\vcpkg"
 ```
 
-### 4. Configure Build
+> **Tip:** You can install vcpkg anywhere you want. Just update `VCPKG_ROOT` accordingly.
 
-Open **Developer PowerShell for VS** or **Developer Command Prompt** (not regular PowerShell/CMD):
+### Step 3: Get the DRIP Source Code
 
-**Clean any previous build (if exists):**
-
-PowerShell:
 ```powershell
+cd C:\
+git clone https://github.com/Digital-Reserve/DRIP.git
+cd DRIP
+```
+
+Or if you already have the source code, just navigate to it:
+
+```powershell
+cd C:\path\to\your\DRIP
+```
+
+### Step 4: Open Developer Command Prompt
+
+**Important:** You must use the Visual Studio Developer command prompt, not regular PowerShell/CMD.
+
+**How to open it:**
+1. Press Windows key
+2. Search for **"Developer PowerShell for VS 2022"** (or your VS version)
+3. Run it
+
+Then navigate to your DRIP source:
+
+```powershell
+cd C:\path\to\your\DRIP
+```
+
+### Step 5: Configure the Build
+
+From your DRIP directory, run:
+
+```powershell
+# Clean any previous build attempts (if any)
 if (Test-Path build) { Remove-Item -Recurse -Force build }
+
+# Configure with vcpkg
+cmake -B build -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF
 ```
 
-CMD:
+**For CMD instead of PowerShell:**
 ```cmd
 if exist build rmdir /s /q build
-```
-
-**Configure:**
-```powershell
 cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF
 ```
 
-> **Note:** First configuration takes 10-20 minutes as vcpkg downloads and compiles dependencies.
+> **Note:** Replace `C:/vcpkg` with your actual vcpkg install path if different.
 
-### 5. Build
+> **Note:** The first build takes 10-20 minutes while vcpkg downloads and compiles dependencies. Subsequent builds are much faster.
+
+### Step 6: Build
 
 ```powershell
 cmake --build build --config Release
 ```
 
-Add `-j N` for parallel builds (e.g., `-j 8` for 8 cores).
+For faster parallel builds, add the `-j` flag with number of CPU cores:
 
-### 6. Verify
+```powershell
+cmake --build build --config Release -j 8
+```
+
+### Step 7: Verify the Build
 
 ```powershell
 .\build\bin\Release\dripd.exe --version
 .\build\bin\Release\drip-cli.exe --version
 ```
 
+You should see version output if the build succeeded.
+
 ---
 
-## Troubleshooting
+## Running DRIP
 
-### "Generator does not match previous build"
+From your DRIP directory:
 
-Delete the build folder and reconfigure:
 ```powershell
-Remove-Item -Recurse -Force build
-# Then run cmake -B build ... again
+# Start the daemon
+.\build\bin\Release\dripd.exe -drip
+
+# In another terminal, use the CLI
+.\build\bin\Release\drip-cli.exe -drip getblockchaininfo
 ```
-
-### "Buildtrees path is too long"
-
-Add a shorter path for vcpkg build files:
-```powershell
-cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=C:\vcpkg\bt
-```
-
-### "Could not find any instance of Visual Studio"
-
-- Make sure you're running from **Developer PowerShell/Command Prompt**, not regular PowerShell/CMD
-- Or set the VS path manually: Start Menu → Visual Studio → "Developer PowerShell for VS 20XX"
-
-### "Paths with embedded space may be handled incorrectly"
-
-Clone to a path without spaces (e.g., `C:\drip` not `C:\My Projects\drip`)
-
-### Antivirus Slowing Build
-
-Add `C:\drip` and `C:\vcpkg` to Windows Defender exclusions for faster builds.
 
 ---
 
@@ -137,21 +154,105 @@ Add `C:\drip` and `C:\vcpkg` to Windows Defender exclusions for faster builds.
 
 | Option | Description |
 |--------|-------------|
-| `-DBUILD_GUI=ON` | Build Qt GUI (requires Qt6) |
-| `-DCMAKE_BUILD_TYPE=Release` | Optimized build |
+| `-DBUILD_GUI=ON` | Build Qt GUI wallet (requires additional Qt6 setup) |
 | `-DENABLE_WALLET=OFF` | Disable wallet functionality |
 | `-DWITH_ZMQ=ON` | Enable ZMQ notifications |
 
-Run `cmake -B build -LH` to see all available options.
+To see all available options:
+```powershell
+cmake -B build -LH
+```
 
 ---
 
-## Running DRIP
+## Troubleshooting
+
+### "Could not find CMakeLists.txt" or "The source directory does not exist"
+
+You're not in the DRIP source directory. Make sure you `cd` to the correct location:
 
 ```powershell
-# Start the daemon
-.\build\bin\Release\dripd.exe -drip
-
-# In another terminal, use CLI
-.\build\bin\Release\drip-cli.exe -drip getblockchaininfo
+cd C:\path\to\your\DRIP
+dir CMakeLists.txt  # This should show the file exists
 ```
+
+### "VCPKG_ROOT is not defined" or toolchain file not found
+
+Make sure `VCPKG_ROOT` environment variable is set:
+
+```powershell
+# Check if it's set
+echo $env:VCPKG_ROOT
+
+# If empty, set it (adjust path to your vcpkg location)
+$env:VCPKG_ROOT = "C:\vcpkg"
+```
+
+Or use the full path directly:
+```powershell
+cmake -B build -DCMAKE_TOOLCHAIN_FILE="C:\vcpkg\scripts\buildsystems\vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF
+```
+
+### "Generator does not match previous build"
+
+Delete the build folder and reconfigure:
+
+```powershell
+Remove-Item -Recurse -Force build
+cmake -B build ...  # Run your cmake configure command again
+```
+
+### "Could not find any instance of Visual Studio"
+
+- You're not running from Developer PowerShell/Command Prompt
+- Open it from: Start Menu → "Developer PowerShell for VS 2022"
+
+### "Buildtrees path is too long"
+
+Windows has path length limits. Add a shorter vcpkg build path:
+
+**CMD:**
+```cmd
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=C:\bt
+```
+
+**PowerShell:**
+```powershell
+cmake -B build -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF -DVCPKG_INSTALL_OPTIONS=--x-buildtrees-root=C:\bt
+```
+
+### "Paths with embedded space may be handled incorrectly"
+
+Clone to a path without spaces:
+- ✅ Good: `C:\DRIP` or `C:\dev\DRIP`
+- ❌ Bad: `C:\My Projects\DRIP`
+
+### Build is very slow
+
+1. Add your project folder to Windows Defender exclusions
+2. Add vcpkg folder to exclusions too
+3. Use `-j N` flag for parallel builds (e.g., `-j 8`)
+
+---
+
+## Summary Cheat Sheet
+
+**CMD (most common):**
+```cmd
+cd C:\path\to\your\DRIP
+if exist build rmdir /s /q build
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF
+cmake --build build --config Release -j 8
+build\bin\Release\dripd.exe --version
+```
+
+**PowerShell:**
+```powershell
+cd C:\path\to\your\DRIP
+if (Test-Path build) { Remove-Item -Recurse -Force build }
+cmake -B build -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBUILD_GUI=OFF
+cmake --build build --config Release -j 8
+.\build\bin\Release\dripd.exe --version
+```
+
+> Replace `C:/vcpkg` with your vcpkg install path.
