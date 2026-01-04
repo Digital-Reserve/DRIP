@@ -99,15 +99,18 @@ The fork reduced the adjustment window from 2 weeks to 3.5 days, allowing the ne
 
 DRIP follows Bitcoin's emission schedule with 5-minute blocks:
 
-| Era | Block Range | Reward | Era Total | Cumulative |
-|-----|-------------|--------|-----------|------------|
-| 1 | 0–209,999 | 50 DRIP | 10,500,000 | 10,500,000 |
-| 2 | 210,000–419,999 | 25 DRIP | 5,250,000 | 15,750,000 |
-| 3 | 420,000–629,999 | 12.5 DRIP | 2,625,000 | 18,375,000 |
-| 4 | 630,000–839,999 | 6.25 DRIP | 1,312,500 | 19,687,500 |
-| ... | ... | ... | ... | ... |
+| Era | Block Range | Reward | Era Total | Cumulative | % of Supply |
+|-----|-------------|--------|-----------|------------|-------------|
+| 1 | 0–209,999 | 50 DRIP | 10,500,000 | 10,500,000 | 50.00% |
+| 2 | 210,000–419,999 | 25 DRIP | 5,250,000 | 15,750,000 | 75.00% |
+| 3 | 420,000–629,999 | 12.5 DRIP | 2,625,000 | 18,375,000 | 87.50% |
+| 4 | 630,000–839,999 | 6.25 DRIP | 1,312,500 | 19,687,500 | 93.75% |
+| 5 | 840,000–1,049,999 | 3.125 DRIP | 656,250 | 20,343,750 | 96.88% |
+| 6 | 1,050,000–1,259,999 | 1.5625 DRIP | 328,125 | 20,671,875 | 98.44% |
+| 7 | 1,260,000–1,469,999 | 0.78125 DRIP | 164,063 | 20,835,938 | 99.22% |
+| 8 | 1,470,000–1,679,999 | 0.39063 DRIP | 82,031 | 20,917,969 | 99.61% |
 
-With 5-minute blocks, halvings occur approximately every 2 years (vs. Bitcoin's 4 years).
+With 5-minute blocks, each era lasts ~2 years. Full supply approaches 21M asymptotically.
 
 ---
 
