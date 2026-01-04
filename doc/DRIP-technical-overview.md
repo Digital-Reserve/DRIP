@@ -133,22 +133,25 @@ The protocol message header uses ASCII "DRIP":
 
 ## 7. Mining
 
-DRIP uses SHA256d proof-of-work, making it compatible with:
-- Bitcoin ASIC miners
-- Mining pools supporting SHA256d
-- CPU/GPU mining (at lower efficiency)
+DRIP uses SHA256d proof-of-work, making it compatible with Bitcoin ASIC miners and any SHA256d mining pool.
 
-### Solo Mining
+### Pool Mining (Recommended)
+
+Current network difficulty requires ASIC hardware. Join a mining pool:
+
+- **SuperAxe Pool:** https://superaxepool.com/
+- **AltCoins Pool:** https://altcoinspool.cc/
+
+Configure your ASIC miner with the pool's stratum address and your DRIP wallet address.
+
+### Getting a Wallet Address
 
 ```bash
 drip-cli -drip createwallet "mining"
 drip-cli -drip getnewaddress
-drip-cli -drip generatetoaddress 1 <address>
 ```
 
-### Pool Mining
-
-Any SHA256d-compatible pool software works with DRIP. Stratum protocol is supported.
+*Note: CPU mining via `generatetoaddress` is no longer practical due to network difficulty.*
 
 ---
 

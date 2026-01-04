@@ -50,12 +50,16 @@ dripd.exe -drip
 ./dripd -drip
 ```
 
-### Create Wallet & Mine
+### Create Wallet
 ```bash
 drip-cli -drip createwallet "mywallet"
 drip-cli -drip getnewaddress
-drip-cli -drip generatetoaddress 1 YOUR_ADDRESS
 ```
+
+### Mining
+Pool mining with ASIC hardware is required due to network difficulty:
+- [SuperAxe Pool](https://superaxepool.com/)
+- [AltCoins Pool](https://altcoinspool.cc/)
 
 ### Connect to Peers
 ```bash
