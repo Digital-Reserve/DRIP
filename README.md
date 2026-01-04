@@ -109,7 +109,7 @@ dripd -drip -proxy=127.0.0.1:9050 -onlynet=onion -listen
 
 ## Community
 
-- [Discord](https://discord.gg/vKGG89y3) - Join the DRIP community for discussions, support, and updates
+- [Discord](https://discord.gg/jHy2yCMpWH) - Join the DRIP community for discussions, support, and updates
 
 ## License
 
