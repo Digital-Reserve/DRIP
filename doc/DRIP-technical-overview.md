@@ -135,9 +135,9 @@ The protocol message header uses ASCII "DRIP":
 
 DRIP uses SHA256d proof-of-work, making it compatible with Bitcoin ASIC miners and any SHA256d mining pool.
 
-### Pool Mining (Recommended)
+### Pool Mining
 
-Current network difficulty requires ASIC hardware. Join a mining pool:
+ASIC hardware recommended due to network difficulty. Available pools:
 
 - **SuperAxe Pool:** https://superaxepool.com/
 - **AltCoins Pool:** https://altcoinspool.cc/

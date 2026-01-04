@@ -56,11 +56,6 @@ drip-cli -drip createwallet "mywallet"
 drip-cli -drip getnewaddress
 ```
 
-### Mining
-Pool mining with ASIC hardware is required due to network difficulty:
-- [SuperAxe Pool](https://superaxepool.com/)
-- [AltCoins Pool](https://altcoinspool.cc/)
-
 ### Connect to Peers
 ```bash
 dripd -drip -addnode=xc4dnfjzk7kyyda7jms5xngaldzvysi3lxkfpknhc3rb3ugyj7v2ahid.onion:58333
