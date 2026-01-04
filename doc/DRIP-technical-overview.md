@@ -99,8 +99,8 @@ The fork reduced the adjustment window from 2 weeks to 3.5 days, allowing the ne
 
 DRIP follows Bitcoin's emission schedule with 5-minute blocks:
 
-| Era | Block Range | Reward | Supply Added | Cumulative |
-|-----|-------------|--------|--------------|------------|
+| Era | Block Range | Reward | Era Total | Cumulative |
+|-----|-------------|--------|-----------|------------|
 | 1 | 0–209,999 | 50 DRIP | 10,500,000 | 10,500,000 |
 | 2 | 210,000–419,999 | 25 DRIP | 5,250,000 | 15,750,000 |
 | 3 | 420,000–629,999 | 12.5 DRIP | 2,625,000 | 18,375,000 |
