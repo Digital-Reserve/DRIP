@@ -73,7 +73,7 @@ dripd -drip -addnode=xc4dnfjzk7kyyda7jms5xngaldzvysi3lxkfpknhc3rb3ugyj7v2ahid.on
 **Linux quick start:**
 ```bash
 sudo apt install -y build-essential cmake pkgconf python3 libevent-dev libboost-dev libsqlite3-dev
-git clone https://github.com/AnchorCoinDevelopment/DRIP.git && cd DRIP
+git clone https://github.com/Digital-Reserve/DRIP.git && cd DRIP
 cmake -B build -DBUILD_GUI=OFF && cmake --build build -j$(nproc)
 ```
 
@@ -91,7 +91,7 @@ dripd -drip -proxy=127.0.0.1:9050 -onlynet=onion -listen
 - All Bitcoin consensus rules apply
 - BIP34, BIP65, BIP66, CSV, Segwit, Taproot active from block 1
 - Difficulty adjustment every 4032 blocks (2 weeks at 5-min blocks)
-- **Fork at block 35,000**: Difficulty adjustment changes to every 1008 blocks (3.5 days)
+- **Hard fork at block 36,108**: Difficulty adjustment changed from 4032 to 1008 blocks (3.5 days)
 - Genesis block reward is unspendable (like Bitcoin)
 
 ## Going Public
@@ -102,6 +102,7 @@ dripd -drip -proxy=127.0.0.1:9050 -onlynet=onion -listen
 
 ## Documentation
 
+- [**DRIP Technical Overview**](doc/DRIP-technical-overview.md) - Full technical specifications
 - [Build on Windows](doc/build-windows-msvc.md)
 - [Build on Linux](doc/build-unix.md)
 - [Build on macOS](doc/build-osx.md)
